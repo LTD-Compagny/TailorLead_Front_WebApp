@@ -1,58 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TailorLead – Sourcing</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-</head>
-
-<body>
-
-    <!-- BACKGROUND ANIMATION -->
-    <div id="background-floating"></div>
-
-    <!-- HEADER -->
-    <header>
-        <div class="logo">TailorLead</div>
-        <nav>
-            <a href="#">Sourcing</a>
-            <a href="#">CRM</a>
-            <a href="#">Veille</a>
-            <a href="#">Paramètres</a>
-        </nav>
-    </header>
-
-    <!-- HERO / PROMPT ZONE -->
-    <section class="hero">
-        <h1>Sourcing intelligent par langage naturel</h1>
-        <p class="subtitle">Ask anything…</p>
-
-        <div class="prompt-box">
-            <input id="promptInput" type="text" placeholder="Ex: Trouve-moi toutes les sociétés SAS dans le 92 créées avant 2018…">
-            <button onclick="submitPrompt()">Générer</button>
-        </div>
-
-        <!-- Example tags carousel -->
-        <div class="examples">
-            <span class="example-tag">Donne-moi le listing Fortune 500</span>
-            <span class="example-tag">Analyse mon prospect Monsieur Gamby</span>
-            <span class="example-tag">Sors-moi les entreprises en RJ dans le 33</span>
-            <span class="example-tag">Trouve-moi les Top SAS Retail > 5M€</span>
-        </div>
-    </section>
-
-    <!-- FAKE RESULTS OVERLAY (background) -->
-    <div class="fake-results">
-        <div class="fake-card">TotalEnergies — CA: 184B€</div>
-        <div class="fake-card">BNP Paribas — CA: 53B€</div>
-        <div class="fake-card">Carrefour — CA: 90B€</div>
-        <div class="fake-card">Vinci — CA: 65B€</div>
-        <div class="fake-card">Monsieur Gamby — Score 87/100 — Aumetis / TailorLead</div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TailorLead – Sourcing Intelligence</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
 

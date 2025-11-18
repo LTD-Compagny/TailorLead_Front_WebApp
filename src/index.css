@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#0d1b2a] text-white overflow-hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  }
+  
+  #root {
+    @apply w-full h-screen;
+  }
+}
+
+@layer utilities {
+  /* Animation de pulse pour la bordure quand l'utilisateur tape */
+  @keyframes pulse-border {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(77, 175, 255, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 20px 4px rgba(77, 175, 255, 0.4);
+    }
+  }
+
+  .animate-pulse-border {
+    animation: pulse-border 2s ease-in-out infinite;
+  }
+
+  /* Animation du beam vertical (onde bleue vers le bas) */
+  @keyframes beam {
+    0% {
+      transform: translateX(-50%) translateY(0) scaleY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-50%) translateY(100vh) scaleY(1);
+      opacity: 0;
+    }
+  }
+
+  .animate-beam {
+    animation: beam 0.7s ease-out forwards;
+    transform-origin: top center;
+  }
+
+  /* Animation burst 1 (cercle qui s'étend depuis le prompt) */
+  @keyframes burst-1 {
+    0% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(2.5);
+      opacity: 0;
+    }
+  }
+
+  .animate-burst-1 {
+    animation: burst-1 0.6s ease-out forwards;
+  }
+
+  /* Animation burst 2 (deuxième cercle décalé) */
+  @keyframes burst-2 {
+    0% {
+      transform: scale(1);
+      opacity: 0.4;
+    }
+    100% {
+      transform: scale(3);
+      opacity: 0;
+    }
+  }
+
+  .animate-burst-2 {
+    animation: burst-2 0.8s ease-out 0.1s forwards;
+  }
+}
+

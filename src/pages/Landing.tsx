@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import PremiumNetwork from '../components/PremiumNetwork'
 import SearchBar from '../components/SearchBar'
+import ExampleCarousel from '../components/ExampleCarousel'
 
 /**
  * Landing Page TailorLead
@@ -8,7 +9,9 @@ import SearchBar from '../components/SearchBar'
  * Layout:
  * 1. PremiumNetwork (fond animé z-index -10)
  * 2. Header TailorLead en haut à gauche
- * 3. SearchBar centré avec animations interactives
+ * 3. Hero section centré (titre + slogan animé)
+ * 4. SearchBar centré avec animations interactives
+ * 5. ExampleCarousel sous le prompt
  */
 export default function Landing() {
   const [pulseSpeed, setPulseSpeed] = useState(1)
@@ -23,19 +26,23 @@ export default function Landing() {
       {/* Fond animé avec réseau directionnel */}
       <PremiumNetwork pulseSpeed={pulseSpeed} />
 
-      {/* Header TailorLead en haut à gauche */}
-      <header className="absolute top-8 left-8 md:top-12 md:left-12 z-20">
-        <h1 className="text-white font-bold text-2xl md:text-3xl tracking-wide mb-1">
+      {/* Hero Section en haut */}
+      <div className="absolute top-8 md:top-12 left-1/2 -translate-x-1/2 z-20 text-center">
+        <h1 className="text-white/60 font-bold text-4xl md:text-5xl mb-3 font-sora">
           TailorLead
         </h1>
-        <p className="text-white/60 text-sm md:text-base font-light">
-          Where Data Becomes Deal Flow.
+        <p className="text-white/50 text-lg md:text-xl font-light animate-slide-left-fade-in">
+          Less tasks, more value.
         </p>
-      </header>
+      </div>
 
-      {/* SearchBar centré */}
-      <div className="relative z-10 flex items-center justify-center h-screen">
-        <SearchBar onSearchSpeedChange={handleSearchSpeedChange} />
+      {/* Contenu principal centré */}
+      <div className="relative z-10 flex flex-col items-center justify-center h-screen px-4">
+        {/* SearchBar + ExampleCarousel */}
+        <div className="w-full max-w-[1100px] mx-auto flex flex-col items-center">
+          <SearchBar onSearchSpeedChange={handleSearchSpeedChange} />
+          <ExampleCarousel />
+        </div>
       </div>
     </div>
   )

@@ -73,7 +73,7 @@ export default function SearchBar({ onSearchSpeedChange }: SearchBarProps) {
       )}
 
       {/* Search Input */}
-      <form onSubmit={handleSubmit} className="relative z-10">
+      <form onSubmit={handleSubmit} className="relative z-10 w-full flex justify-center">
         <input
           type="text"
           value={searchValue}
@@ -81,7 +81,7 @@ export default function SearchBar({ onSearchSpeedChange }: SearchBarProps) {
           onKeyDown={handleKeyDown}
           placeholder="Enter your best Screening Wishlist"
           className={`
-            w-[75vw] px-6 py-4 rounded-xl backdrop-blur-md 
+            w-[75vw] max-w-[1100px] min-w-[350px] px-6 py-4 rounded-xl backdrop-blur-md 
             bg-white/10 text-white placeholder-white/50 text-lg
             focus:outline-none transition-all duration-300 shadow-2xl
             ${

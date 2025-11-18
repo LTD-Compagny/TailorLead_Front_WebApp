@@ -21,6 +21,11 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
     await loadSlim(engine)
   }, [])
 
+  // Quand l'utilisateur tape (pulseSpeed > 1), augmenter l'opacité et l'attraction
+  const isTyping = pulseSpeed > 1
+  const baseOpacity = isTyping ? 0.35 : 0.25
+  const linkOpacity = isTyping ? 0.3 : 0.18
+
   return (
     <Particles
       id="premium-network"
@@ -43,13 +48,13 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
             },
           },
           color: {
-            value: '#8ba8c7',
+            value: isTyping ? '#7a9bc4' : '#5d7a9a',
           },
           shape: {
             type: 'circle',
           },
           opacity: {
-            value: 0.3,
+            value: baseOpacity,
             random: false,
           },
           size: {
@@ -59,8 +64,8 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
           links: {
             enable: true,
             distance: 150,
-            color: '#8ba8c7',
-            opacity: 0.25,
+            color: isTyping ? '#7a9bc4' : '#5d7a9a',
+            opacity: linkOpacity,
             width: 1,
             triangles: {
               enable: false,
@@ -71,13 +76,13 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
             speed: 0.2 * pulseSpeed,
             direction: 'none',
             random: false,
-            straight: false,
+            straight: isTyping,
             outModes: {
               default: 'out',
             },
             attract: {
-              enable: true,
-              rotateX: 600,
+              enable: isTyping,
+              rotateX: 1200,
               rotateY: 1200,
             },
           },
@@ -118,16 +123,16 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
             },
             particles: {
               color: {
-                value: '#4dafff',
+                value: isTyping ? '#7a9bc4' : '#5d7a9a',
               },
               shape: {
                 type: 'circle',
               },
               size: {
-                value: 3,
+                value: isTyping ? 4 : 3,
               },
               opacity: {
-                value: 0.6,
+                value: isTyping ? 0.8 : 0.5,
                 animation: {
                   enable: true,
                   speed: 1,
@@ -166,16 +171,16 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
             },
             particles: {
               color: {
-                value: '#4dafff',
+                value: isTyping ? '#7a9bc4' : '#5d7a9a',
               },
               shape: {
                 type: 'circle',
               },
               size: {
-                value: 3,
+                value: isTyping ? 4 : 3,
               },
               opacity: {
-                value: 0.6,
+                value: isTyping ? 0.8 : 0.5,
                 animation: {
                   enable: true,
                   speed: 1,
@@ -214,16 +219,16 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
             },
             particles: {
               color: {
-                value: '#4dafff',
+                value: isTyping ? '#7a9bc4' : '#5d7a9a',
               },
               shape: {
                 type: 'circle',
               },
               size: {
-                value: 3,
+                value: isTyping ? 4 : 3,
               },
               opacity: {
-                value: 0.6,
+                value: isTyping ? 0.8 : 0.5,
                 animation: {
                   enable: true,
                   speed: 1,
@@ -262,16 +267,16 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
             },
             particles: {
               color: {
-                value: '#4dafff',
+                value: isTyping ? '#7a9bc4' : '#5d7a9a',
               },
               shape: {
                 type: 'circle',
               },
               size: {
-                value: 3,
+                value: isTyping ? 4 : 3,
               },
               opacity: {
-                value: 0.6,
+                value: isTyping ? 0.8 : 0.5,
                 animation: {
                   enable: true,
                   speed: 1,

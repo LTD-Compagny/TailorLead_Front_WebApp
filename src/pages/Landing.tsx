@@ -1,30 +1,37 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import PremiumNetwork from '../components/PremiumNetwork'
-import SearchBar from '../components/SearchBar'
+import BackgroundPulseLayer from '../components/BackgroundPulseLayer'
+import SearchBar, { SearchBarRef } from '../components/SearchBar'
 import ExampleCarousel from '../components/ExampleCarousel'
 
 /**
  * Landing Page TailorLead
  * 
  * Layout:
- * 1. PremiumNetwork (fond animé z-index -10)
- * 2. Header TailorLead en haut à gauche
- * 3. Hero section centré (titre + slogan animé)
+ * 1. PremiumNetwork (fond animé statique, z-index -10)
+ * 2. BackgroundPulseLayer (pulses lumineux, z-index -5)
+ * 3. Hero section en haut (titre + slogan animé)
  * 4. SearchBar centré avec animations interactives
  * 5. ExampleCarousel sous le prompt
+ * 
+ * Le background ne re-render JAMAIS, seuls les pulses réagissent au typing.
  */
 export default function Landing() {
-  const [pulseSpeed, setPulseSpeed] = useState(1)
-
-  const handleSearchSpeedChange = (isTyping: boolean) => {
-    // Augmenter la vitesse des pulses de 20% quand l'utilisateur tape
-    setPulseSpeed(isTyping ? 1.2 : 1)
-  }
+  const [isTyping, setIsTyping] = useState(false)
+  const searchBarRef = useRef<SearchBarRef>(null)
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[#0d1b2a]">
-      {/* Fond animé avec réseau directionnel */}
-      <PremiumNetwork pulseSpeed={pulseSpeed} />
+      {/* Fond animé statique (ne re-render jamais) */}
+      <PremiumNetwork />
+
+      {/* Layer de pulses lumineux (réagit au typing) */}
+      <BackgroundPulseLayer 
+        isTyping={isTyping}
+        promptRef={{
+          current: searchBarRef.current?.getInputElement() || null
+        }}
+      />
 
       {/* Hero Section en haut */}
       <div className="absolute top-8 md:top-12 left-1/2 -translate-x-1/2 z-20 text-center">
@@ -40,7 +47,10 @@ export default function Landing() {
       <div className="relative z-10 flex flex-col items-center justify-center h-screen px-4">
         {/* SearchBar + ExampleCarousel */}
         <div className="w-full max-w-[1100px] mx-auto flex flex-col items-center">
-          <SearchBar onSearchSpeedChange={handleSearchSpeedChange} />
+          <SearchBar 
+            ref={searchBarRef}
+            onTypingChange={setIsTyping}
+          />
           <ExampleCarousel />
         </div>
       </div>

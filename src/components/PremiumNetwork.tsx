@@ -1,35 +1,112 @@
-import { useCallback } from 'react'
+import { useCallback, memo, useRef, useEffect } from 'react'
 import Particles from 'react-tsparticles'
 import { loadSlim } from 'tsparticles-slim'
 import type { Engine } from 'tsparticles-engine'
 
-interface PremiumNetworkProps {
-  pulseSpeed?: number
+// Déclaration des types globaux pour tsParticles
+declare global {
+  interface Window {
+    premiumNetworkNodes?: Array<{
+      x: number
+      y: number
+      links: Array<{ x: number; y: number }>
+    }>
+  }
 }
 
 /**
- * Premium Network Background - Réseau directionnel convergeant vers le centre
+ * Premium Network Background - Réseau directionnel statique
+ * 
+ * Ce composant ne re-render JAMAIS pour éviter de redémarrer l'animation.
+ * Les effets visuels de typing sont gérés par BackgroundPulseLayer.
  * 
  * Caractéristiques:
- * - Lignes qui convergent vers le prompt central
- * - Pulses lumineux qui voyagent le long des lignes vers le centre
- * - Animation élégante et subtile (style M&A corporate)
- * - Vitesse des pulses ajustable (augmente quand l'utilisateur tape)
+ * - Lignes statiques qui ne bougent pas
+ * - Animation isolée, ne dépend d'aucun state React
+ * - Pulses lumineux subtils en fond continu
+ * - Expose les nœuds et liens réels via window.premiumNetworkNodes
  */
-export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) {
+function PremiumNetworkComponent() {
+  const containerRef = useRef<unknown>(null)
+  const intervalRef = useRef<number | null>(null)
+
   const particlesInit = useCallback(async (engine: Engine) => {
     await loadSlim(engine)
   }, [])
 
-  // Quand l'utilisateur tape (pulseSpeed > 1), augmenter l'opacité et l'attraction
-  const isTyping = pulseSpeed > 1
-  const baseOpacity = isTyping ? 0.35 : 0.25
-  const linkOpacity = isTyping ? 0.3 : 0.18
+  // Callback appelé quand tsParticles est chargé - MÉTHODE CORRECTE
+  const particlesLoaded = useCallback(async (container?: unknown) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cont = container as any
+    if (!cont || !cont.particles) {
+      console.warn("⚠️ PremiumNetwork: container not ready")
+      return
+    }
+
+    containerRef.current = cont
+
+    const extractNodes = () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const currentContainer = containerRef.current as any
+        if (!currentContainer) return
+
+        const particlesArray = currentContainer.particles.array || []
+        
+        if (particlesArray.length === 0) {
+          console.warn("⚠️ PremiumNetwork: No particles in array")
+          return
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const nodes = particlesArray.map((p: any) => ({
+          x: p.position.x,
+          y: p.position.y,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          links: (p.links || []).map((l: any) => ({
+            x: l.destination?.position?.x || 0,
+            y: l.destination?.position?.y || 0,
+          })),
+        }))
+
+        window.premiumNetworkNodes = nodes
+        console.log("🔥 PremiumNetwork: Extracted", nodes.length, "nodes with links")
+      } catch (error) {
+        console.warn("⚠️ PremiumNetwork: Extraction error", error)
+      }
+    }
+
+    // Extraction initiale
+    extractNodes()
+
+    // Nettoyer l'ancien intervalle s'il existe
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+    }
+
+    // Mettre à jour périodiquement pour suivre les mouvements des particules
+    intervalRef.current = window.setInterval(extractNodes, 1000)
+  }, [])
+
+  // Nettoyer l'intervalle lors du démontage
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
+  }, [])
+
+  // Configuration statique (ne change jamais)
+  const baseOpacity = 0.25
+  const linkOpacity = 0.18
+  const isTyping = false
 
   return (
     <Particles
       id="premium-network"
       init={particlesInit}
+      loaded={particlesLoaded}
       className="absolute inset-0 w-full h-full"
       style={{ zIndex: -10 }}
       options={{
@@ -48,7 +125,7 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
             },
           },
           color: {
-            value: isTyping ? '#7a9bc4' : '#5d7a9a',
+            value: '#5d7a9a',
           },
           shape: {
             type: 'circle',
@@ -64,7 +141,7 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
           links: {
             enable: true,
             distance: 150,
-            color: isTyping ? '#7a9bc4' : '#5d7a9a',
+            color: '#5d7a9a',
             opacity: linkOpacity,
             width: 1,
             triangles: {
@@ -73,16 +150,16 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
           },
           move: {
             enable: true,
-            speed: 0.2 * pulseSpeed,
+            speed: 0.2,
             direction: 'none',
             random: false,
-            straight: isTyping,
+            straight: false,
             outModes: {
               default: 'out',
             },
             attract: {
-              enable: isTyping,
-              rotateX: 1200,
+              enable: false,
+              rotateX: 600,
               rotateY: 1200,
             },
           },
@@ -111,7 +188,7 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
             direction: 'top',
             rate: {
               quantity: 1,
-              delay: 2 / pulseSpeed,
+              delay: 2,
             },
             size: {
               width: 100,
@@ -142,7 +219,7 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
               },
               move: {
                 enable: true,
-                speed: 2 * pulseSpeed,
+                speed: 2,
                 direction: 'bottom',
                 outModes: {
                   default: 'destroy',
@@ -159,7 +236,7 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
             direction: 'bottom',
             rate: {
               quantity: 1,
-              delay: 2 / pulseSpeed,
+              delay: 2,
             },
             size: {
               width: 100,
@@ -190,7 +267,7 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
               },
               move: {
                 enable: true,
-                speed: 2 * pulseSpeed,
+                speed: 2,
                 direction: 'top',
                 outModes: {
                   default: 'destroy',
@@ -207,7 +284,7 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
             direction: 'right',
             rate: {
               quantity: 1,
-              delay: 2 / pulseSpeed,
+              delay: 2,
             },
             size: {
               width: 0,
@@ -238,7 +315,7 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
               },
               move: {
                 enable: true,
-                speed: 2 * pulseSpeed,
+                speed: 2,
                 direction: 'right',
                 outModes: {
                   default: 'destroy',
@@ -255,7 +332,7 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
             direction: 'left',
             rate: {
               quantity: 1,
-              delay: 2 / pulseSpeed,
+              delay: 2,
             },
             size: {
               width: 0,
@@ -286,7 +363,7 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
               },
               move: {
                 enable: true,
-                speed: 2 * pulseSpeed,
+                speed: 2,
                 direction: 'left',
                 outModes: {
                   default: 'destroy',
@@ -305,4 +382,10 @@ export default function PremiumNetwork({ pulseSpeed = 1 }: PremiumNetworkProps) 
     />
   )
 }
+
+// Mémoïsation pour éviter tout re-render (aucune prop acceptée)
+const PremiumNetwork = memo(PremiumNetworkComponent)
+PremiumNetwork.displayName = 'PremiumNetwork'
+
+export default PremiumNetwork
 

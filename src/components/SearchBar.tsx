@@ -1,32 +1,59 @@
-import { useState, FormEvent, KeyboardEvent, useEffect } from 'react'
+import { useState, FormEvent, KeyboardEvent, useEffect, forwardRef, useImperativeHandle, useRef } from 'react'
+
+// Déclaration des types globaux
+declare global {
+  interface Window {
+    triggerMajorPulse?: () => void
+  }
+}
 
 interface SearchBarProps {
-  onSearchSpeedChange: (isTyping: boolean) => void
+  onTypingChange?: (isTyping: boolean) => void
+}
+
+export interface SearchBarRef {
+  getInputElement: () => HTMLDivElement | null
 }
 
 /**
  * SearchBar avec états interactifs:
  * 
  * IDLE: bordure blanche 20% opacity, fond transparent
- * TYPING: bordure bleue électrique (#4dafff) avec pulse
+ * TYPING: bordure bleue électrique (#4dafff) avec pulse + glow subtil
  * SUBMIT: onde bleue verticale + burst de particules
+ * 
+ * Le glow est renforcé quand les pulses du BackgroundPulseLayer arrivent.
  */
-export default function SearchBar({ onSearchSpeedChange }: SearchBarProps) {
+const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(({ onTypingChange }, ref) => {
   const [searchValue, setSearchValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [showBeam, setShowBeam] = useState(false)
   const [showBurst, setShowBurst] = useState(false)
+  const [pulseGlow, setPulseGlow] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Exposer l'élément conteneur via ref
+  useImperativeHandle(ref, () => ({
+    getInputElement: () => containerRef.current,
+  }))
 
   // Détecte quand l'utilisateur tape
   useEffect(() => {
-    if (searchValue.length > 0) {
-      setIsTyping(true)
-      onSearchSpeedChange(true)
-    } else {
-      setIsTyping(false)
-      onSearchSpeedChange(false)
-    }
-  }, [searchValue, onSearchSpeedChange])
+    const typing = searchValue.length > 0
+    setIsTyping(typing)
+    onTypingChange?.(typing)
+  }, [searchValue, onTypingChange])
+
+  // Effet de glow périodique quand on tape (simule l'arrivée des pulses)
+  useEffect(() => {
+    if (!isTyping) return
+
+    const glowInterval = setInterval(() => {
+      setPulseGlow(true)
+      setTimeout(() => setPulseGlow(false), 150)
+    }, 800)
+
+    return () => clearInterval(glowInterval)
+  }, [isTyping])
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -34,14 +61,13 @@ export default function SearchBar({ onSearchSpeedChange }: SearchBarProps) {
 
     console.log('Recherche soumise:', searchValue)
     
-    // Déclencher l'animation de beam + burst
-    setShowBeam(true)
+    // Déclencher le major pulse (beam + multiple pulses)
+    if (window.triggerMajorPulse) {
+      window.triggerMajorPulse()
+    }
+    
+    // Déclencher l'animation de burst local
     setShowBurst(true)
-
-    // Réinitialiser après l'animation
-    setTimeout(() => {
-      setShowBeam(false)
-    }, 700)
 
     setTimeout(() => {
       setShowBurst(false)
@@ -58,12 +84,7 @@ export default function SearchBar({ onSearchSpeedChange }: SearchBarProps) {
   }
 
   return (
-    <div className="relative">
-      {/* Blue Electric Beam (animation verticale lors du submit) */}
-      {showBeam && (
-        <div className="absolute left-1/2 -translate-x-1/2 top-full w-1 h-screen bg-gradient-to-b from-blue-400 via-blue-500 to-transparent animate-beam pointer-events-none z-20" />
-      )}
-
+    <div className="relative" ref={containerRef}>
       {/* Burst effect (cercles qui partent du prompt) */}
       {showBurst && (
         <>
@@ -83,16 +104,25 @@ export default function SearchBar({ onSearchSpeedChange }: SearchBarProps) {
           className={`
             w-[75vw] max-w-[1100px] min-w-[350px] px-6 py-4 rounded-xl backdrop-blur-md 
             bg-white/10 text-white placeholder-white/50 text-lg
-            focus:outline-none transition-all duration-300 shadow-2xl
+            focus:outline-none transition-all duration-150 shadow-2xl
             ${
               isTyping
                 ? 'border-2 border-[#4dafff] animate-pulse-border'
                 : 'border border-white/20'
             }
           `}
+          style={{
+            boxShadow: pulseGlow
+              ? '0 0 20px rgba(80, 150, 255, 0.5), 0 0 40px rgba(58, 163, 255, 0.3)'
+              : undefined,
+          }}
         />
       </form>
     </div>
   )
-}
+})
+
+SearchBar.displayName = 'SearchBar'
+
+export default SearchBar
 

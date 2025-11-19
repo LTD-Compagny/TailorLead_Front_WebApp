@@ -1,4 +1,5 @@
 import { useState, FormEvent, KeyboardEvent, useEffect, forwardRef, useImperativeHandle, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 // Déclaration des types globaux
 declare global {
@@ -26,6 +27,7 @@ export interface SearchBarRef {
  * Le glow est renforcé quand les pulses du BackgroundPulseLayer arrivent.
  */
 const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(({ onTypingChange }, ref) => {
+  const navigate = useNavigate()
   const [searchValue, setSearchValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [pulseGlow, setPulseGlow] = useState(false)
@@ -71,7 +73,8 @@ const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(({ onTypingChange }, 
       window.triggerMajorPulse()
     }
 
-    // TODO: Intégrer l'API TailorLead ici
+    // Rediriger vers la page des résultats
+    navigate('/results')
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {

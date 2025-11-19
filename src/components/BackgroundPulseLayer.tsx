@@ -1,13 +1,12 @@
 import { useEffect, useRef, useCallback } from 'react'
 
-interface LinkGlow {
+type BrainMode = 'idle' | 'typing' | 'search'
+
+interface LinkPulse {
   id: number
-  fromX: number
-  fromY: number
-  toX: number
-  toY: number
+  nodeIndex: number
+  linkIndex: number
   progress: number
-  opacity: number
   active: boolean
 }
 
@@ -18,17 +17,12 @@ interface PathPulse {
   active: boolean
 }
 
-interface Connection {
-  nodeIndex: number
-  targetX: number
-  targetY: number
-}
-
 interface MajorBeamEffect {
   progress: number
   opacity: number
   active: boolean
-  phase: 'fade-in' | 'hold' | 'fade-out'
+  phase: 'contour' | 'vertical'
+  contourProgress: number
 }
 
 interface BackgroundPulseLayerProps {
@@ -41,54 +35,54 @@ declare global {
   interface Window {
     triggerMajorPulse?: () => void
     triggerMinorPulse?: () => void
+    searchInputLength?: number
   }
 }
 
 /**
- * BackgroundPulseLayer - Dynamic Neuron Grab System
+ * BackgroundPulseLayer - 3-State Neural System
  * 
- * Beams travel along direct connection paths like light in wires:
- * node → closest point on prompt rectangle
- * 
- * Each core node creates exactly ONE connection to the prompt.
- * Connections update LIVE every frame (like tsParticles grab-to-mouse).
+ * IDLE: Calm electric pulses along existing tsParticles links
+ * TYPING: Same pulses but brighter and more frequent
+ * SEARCH: Core clusters activate and shoot data into prompt + vertical beam
  */
 export default function BackgroundPulseLayer({ isTyping, promptRef }: BackgroundPulseLayerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const linkGlowsRef = useRef<LinkGlow[]>([])
+  const brainModeRef = useRef<BrainMode>('idle')
+  const linkPulsesRef = useRef<LinkPulse[]>([])
   const pathPulsesRef = useRef<PathPulse[]>([])
-  const connectionsRef = useRef<Connection[]>([])
   const coreNodeIndicesRef = useRef<number[]>([])
   const majorBeamRef = useRef<MajorBeamEffect | null>(null)
   const nextIdRef = useRef(0)
   const animationFrameRef = useRef<number>()
-  const lastTypingRef = useRef(false)
   const nodesCacheRef = useRef<Array<{ x: number; y: number; links: Array<{ x: number; y: number }> }>>([])
-  const lastPulseEmitRef = useRef<number>(0)
+  const lastLinkPulseTimeRef = useRef<number>(0)
+  const lastPathPulseTimeRef = useRef<number>(0)
+  const searchModeStartRef = useRef<number>(0)
+  const recentlyUsedNodesRef = useRef<number[]>([]) // Pour éviter les paquets
 
-  // Mettre à jour le cache des nœuds ET identifier les core nodes (noyaux)
+  // Identifier les 4-6 core nodes UNE SEULE FOIS
   useEffect(() => {
     const updateNodes = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const nodes = (window as any).premiumNetworkNodes
       if (nodes && nodes.length > 0) {
         nodesCacheRef.current = nodes
-        console.log('✅ Nodes updated:', nodes.length)
 
         // Identifier les core nodes (4-6 nœuds avec le plus de liens) UNE SEULE FOIS
         if (coreNodeIndicesRef.current.length === 0) {
-          // Compter les liens pour chaque nœud
-          const nodeDegrees = nodes.map((node: any, index: number) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const nodeDegrees = nodes.map((node: any, index: number) => ({
             index,
             degree: node.links ? node.links.length : 0
           }))
 
-          // Trier par nombre de liens (DESC)
-          nodeDegrees.sort((a: any, b: any) => b.degree - a.degree) // eslint-disable-line @typescript-eslint/no-explicit-any
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          nodeDegrees.sort((a: any, b: any) => b.degree - a.degree)
 
-          // Prendre les 4-6 premiers (selon disponibilité)
           const coreCount = Math.min(6, Math.max(4, Math.floor(nodes.length * 0.05)))
-          coreNodeIndicesRef.current = nodeDegrees.slice(0, coreCount).map((n: any) => n.index) // eslint-disable-line @typescript-eslint/no-explicit-any
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          coreNodeIndicesRef.current = nodeDegrees.slice(0, coreCount).map((n: any) => n.index)
 
           console.log('🔥 Core nodes identified:', coreNodeIndicesRef.current.length, 'nodes')
         }
@@ -99,38 +93,11 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
     return () => clearInterval(interval)
   }, [])
 
-  // Fonction pour illuminer les liens autour d'un nœud
-  const illuminateLinksAround = useCallback((node: { x: number; y: number; links: Array<{ x: number; y: number }> }) => {
-    if (!node.links || node.links.length === 0) return
-
-    const currentGlows = linkGlowsRef.current.filter(g => g.active).length
-    if (currentGlows >= 5) return
-
-    const linksToIlluminate = Math.min(node.links.length, Math.floor(Math.random() * 2) + 1)
-    
-    for (let i = 0; i < linksToIlluminate; i++) {
-      const link = node.links[Math.floor(Math.random() * node.links.length)]
-      
-      linkGlowsRef.current.push({
-        id: nextIdRef.current++,
-        fromX: node.x,
-        fromY: node.y,
-        toX: link.x,
-        toY: link.y,
-        progress: 0,
-        opacity: 0.25,
-        active: true,
-      })
-    }
-  }, [])
-
   // Calculer le point le plus proche sur le rectangle du prompt
   const getClosestPointOnRect = useCallback((nodeX: number, nodeY: number, promptRect: DOMRect): { x: number; y: number } => {
-    // Limiter les coordonnées du nœud aux bords du rectangle
     const x = Math.max(promptRect.left, Math.min(promptRect.right, nodeX))
     const y = Math.max(promptRect.top, Math.min(promptRect.bottom, nodeY))
 
-    // Si le point est à l'intérieur du rectangle, trouver le bord le plus proche
     if (nodeX >= promptRect.left && nodeX <= promptRect.right && nodeY >= promptRect.top && nodeY <= promptRect.bottom) {
       const distTop = Math.abs(nodeY - promptRect.top)
       const distBottom = Math.abs(nodeY - promptRect.bottom)
@@ -148,45 +115,41 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
     return { x, y }
   }, [])
 
-  // Plus besoin de createConnections - les connexions sont recalculées chaque frame
-
-  // Fonction pour déclencher un "major pulse" (appelée sur Enter) - BEAM VERTICAL
+  // Fonction pour déclencher le mode SEARCH
   const triggerMajorPulse = useCallback(() => {
     if (!promptRef.current) return
 
-    // Déclencher le beam vertical uniquement
+    brainModeRef.current = 'search'
+    searchModeStartRef.current = Date.now()
+    
+    // Déclencher le beam progressif (contour puis vertical)
     majorBeamRef.current = {
       progress: 0,
-      opacity: 0,
+      opacity: 0.6,
       active: true,
-      phase: 'fade-in',
+      phase: 'contour',
+      contourProgress: 0,
     }
+
+    // Retour au mode IDLE après la recherche (2s)
+    setTimeout(() => {
+      brainModeRef.current = 'idle'
+      // Nettoyer les PathPulses actifs
+      pathPulsesRef.current = []
+      recentlyUsedNodesRef.current = []
+    }, 1000)
     
-    console.log('⚡ Major vertical beam triggered')
+    console.log('⚡ SEARCH mode activated')
   }, [promptRef])
 
   const triggerMinorPulse = useCallback(() => {
-    // Créer un pulse depuis un core node aléatoire
-    if (coreNodeIndicesRef.current.length === 0) return
-    
-    const randomIndex = coreNodeIndicesRef.current[Math.floor(Math.random() * coreNodeIndicesRef.current.length)]
-    
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nodes = nodesCacheRef.current.length > 0 ? nodesCacheRef.current : (window as any).premiumNetworkNodes
-    if (!nodes || nodes.length === 0) return
-    
-    const node = nodes[randomIndex]
-    if (!node || node.x === undefined || node.y === undefined) return
-    
-    // Illuminer les liens autour du nœud
-    illuminateLinksAround(node)
-  }, [illuminateLinksAround])
+    // Cette fonction n'est plus utilisée, mais on la garde pour compatibilité
+  }, [])
 
-  // Exposer la fonction globalement
+  // Exposer les fonctions globalement
   useEffect(() => {
     window.triggerMajorPulse = triggerMajorPulse
     window.triggerMinorPulse = triggerMinorPulse
-    console.log('✅ BackgroundPulseLayer: minor+major pulse handlers exposed')
     
     return () => {
       delete window.triggerMajorPulse
@@ -194,16 +157,21 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
     }
   }, [triggerMajorPulse, triggerMinorPulse])
 
-  // Gérer l'état typing
+  // Gérer le mode brain en fonction de isTyping
   useEffect(() => {
-    if (!isTyping && lastTypingRef.current) {
-      // L'utilisateur a arrêté de taper : RESET complet (input vidé)
-      connectionsRef.current = []
+    if (brainModeRef.current !== 'search') {
+      brainModeRef.current = isTyping ? 'typing' : 'idle'
+    }
+  }, [isTyping])
+
+  // Gérer le reset quand l'utilisateur arrête de taper
+  useEffect(() => {
+    if (!isTyping && brainModeRef.current !== 'search') {
+      linkPulsesRef.current = []
       pathPulsesRef.current = []
       majorBeamRef.current = null
-      console.log('🔄 Reset: all connections cleared')
+      recentlyUsedNodesRef.current = []
     }
-    lastTypingRef.current = isTyping
   }, [isTyping])
 
   // Animation loop principale
@@ -214,7 +182,6 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Ajuster la taille du canvas
     const resizeCanvas = () => {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
@@ -222,7 +189,6 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
 
-    // Animation loop
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -239,110 +205,85 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
         return
       }
 
-      // 1. DESSINER LES GLOWS DE LIENS
-      linkGlowsRef.current = linkGlowsRef.current.filter((glow) => {
-        if (!glow.active) return false
+      const now = Date.now()
+      const mode = brainModeRef.current
 
-        glow.progress += 0.012
+      // ═══════════════════════════════════════════════════════════
+      // 1. ÉMETTRE LES LINK PULSES (basé sur le mode)
+      // ═══════════════════════════════════════════════════════════
 
-        if (glow.progress >= 1) {
-          glow.active = false
-          return false
-        }
-        
-        // Fade in puis fade out
-        let opacity = glow.opacity
-        if (glow.progress < 0.3) {
-          opacity *= glow.progress / 0.3
-        } else if (glow.progress > 0.7) {
-          opacity *= (1 - glow.progress) / 0.3
-        }
+      let linkPulseInterval = 400 // default
+      if (mode === 'idle') {
+        linkPulseInterval = 300 + Math.random() * 200 // 300-500ms
+      } else if (mode === 'typing') {
+        linkPulseInterval = 150 + Math.random() * 150 // 150-300ms
+      } else if (mode === 'search') {
+        linkPulseInterval = 80 + Math.random() * 40 // 80-120ms
+      }
 
-        // Dessiner le lien lumineux (électrique et vivant)
-        const intensity = (0.7 + Math.random() * 0.3) * opacity
-        
-        ctx.beginPath()
-        ctx.moveTo(glow.fromX, glow.fromY)
-        ctx.lineTo(glow.toX, glow.toY)
-        ctx.strokeStyle = `rgba(130, 190, 255, ${intensity})`
-        ctx.lineWidth = 1.4
-        ctx.shadowBlur = 20 * intensity
-        ctx.shadowColor = `rgba(130, 190, 255, ${intensity})`
-        ctx.stroke()
-        ctx.shadowBlur = 0
-
-        return true
-      })
-
-      // 2. RECALCULER LES CONNEXIONS LIVE (chaque frame, pour tous les core nodes)
-      connectionsRef.current = coreNodeIndicesRef.current.map(nodeIndex => {
-        const node = nodes[nodeIndex]
-        if (!node || node.x === undefined || node.y === undefined) {
-          return { nodeIndex, targetX: 0, targetY: 0 }
-        }
-        
-        const target = getClosestPointOnRect(node.x, node.y, promptRect)
-        return { nodeIndex, targetX: target.x, targetY: target.y }
-      }).filter(conn => {
-        const node = nodes[conn.nodeIndex]
-        return node && node.x !== undefined && node.y !== undefined
-      })
-
-      // 3. ÉMETTRE DES PATH PULSES (toutes les 400-800ms pendant typing)
-      if (isTyping && coreNodeIndicesRef.current.length > 0) {
-        const now = Date.now()
-        const interval = 400 + Math.random() * 400 // 400-800ms
-        
-        if (now - lastPulseEmitRef.current > interval) {
-          // Limiter à 8 pulses actifs
-          if (pathPulsesRef.current.filter(p => p.active).length < 8) {
-            // Choisir un core node aléatoire
-            const randomIndex = coreNodeIndicesRef.current[Math.floor(Math.random() * coreNodeIndicesRef.current.length)]
+      if (now - lastLinkPulseTimeRef.current > linkPulseInterval) {
+        if (linkPulsesRef.current.filter(p => p.active).length < 40) {
+          // Choisir un nœud aléatoire
+          const randomNodeIndex = Math.floor(Math.random() * nodes.length)
+          const node = nodes[randomNodeIndex]
+          
+          if (node && node.links && node.links.length > 0) {
+            // Choisir un lien aléatoire
+            const randomLinkIndex = Math.floor(Math.random() * node.links.length)
             
-            pathPulsesRef.current.push({
+            linkPulsesRef.current.push({
               id: nextIdRef.current++,
-              nodeIndex: randomIndex,
+              nodeIndex: randomNodeIndex,
+              linkIndex: randomLinkIndex,
               progress: 0,
               active: true,
             })
           }
-          
-          lastPulseEmitRef.current = now
         }
+        
+        lastLinkPulseTimeRef.current = now
       }
 
-      // 4. DESSINER LES PETITS DASH ÉLECTRIQUES QUI VOYAGENT
-      pathPulsesRef.current = pathPulsesRef.current.filter(pulse => {
+      // ═══════════════════════════════════════════════════════════
+      // 2. DESSINER LES LINK PULSES (petits dash électriques)
+      // ═══════════════════════════════════════════════════════════
+
+      linkPulsesRef.current = linkPulsesRef.current.filter(pulse => {
         if (!pulse.active) return false
 
         const node = nodes[pulse.nodeIndex]
-        if (!node || node.x === undefined || node.y === undefined) {
+        if (!node || !node.links || !node.links[pulse.linkIndex]) {
           pulse.active = false
           return false
         }
 
-        // Trouver la connexion correspondante
-        const conn = connectionsRef.current.find(c => c.nodeIndex === pulse.nodeIndex)
-        if (!conn) {
-          pulse.active = false
-          return false
-        }
-
-        pulse.progress += 0.008
+        pulse.progress += 0.01
 
         if (pulse.progress >= 1) {
           pulse.active = false
           return false
         }
 
-        // Calculer la position du dash avec easing
+        const link = node.links[pulse.linkIndex]
+        
+        // TYPING MODE: Highlight the link line
+        if (mode === 'typing') {
+          ctx.beginPath()
+          ctx.moveTo(node.x, node.y)
+          ctx.lineTo(link.x, link.y)
+          ctx.strokeStyle = 'rgba(130,190,255,0.12)'
+          ctx.lineWidth = 1
+          ctx.stroke()
+        }
+        
+        // Interpolation avec easing
         const t = 1 - Math.pow(1 - pulse.progress, 3)
-        const x = node.x + (conn.targetX - node.x) * t
-        const y = node.y + (conn.targetY - node.y) * t
+        const x = node.x + (link.x - node.x) * t
+        const y = node.y + (link.y - node.y) * t
 
-        // Calculer le vecteur direction pour le dash
-        const dx = conn.targetX - node.x
-        const dy = conn.targetY - node.y
+        // Vecteur direction
+        const dx = link.x - node.x
+        const dy = link.y - node.y
         const len = Math.hypot(dx, dy)
         
         if (len === 0) {
@@ -353,62 +294,310 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
         const ux = dx / len
         const uy = dy / len
 
-        // Dessiner un petit dash électrique de 10px
-        const dashLength = 10
-        
+        // Taille et luminosité basées sur le mode
+        let dashLength = 10
+        let brightness = 0.95
+        let shadowBlur = 25
+
+        if (mode === 'search') {
+          dashLength = 12
+          brightness = 1
+          shadowBlur = 30
+        }
+
         ctx.beginPath()
         ctx.moveTo(x, y)
         ctx.lineTo(x - ux * dashLength, y - uy * dashLength)
-        ctx.strokeStyle = 'rgba(130,190,255,0.95)'
+        ctx.strokeStyle = `rgba(130,190,255,${brightness})`
         ctx.lineWidth = 1.4
-        ctx.shadowBlur = 25
-        ctx.shadowColor = 'rgba(130,190,255,1)'
+        ctx.shadowBlur = shadowBlur
+        ctx.shadowColor = `rgba(130,190,255,${brightness})`
         ctx.stroke()
         ctx.shadowBlur = 0
 
         return true
       })
 
-      // 5. DESSINER LE BEAM VERTICAL (SIMPLE LIGNE 2PX)
+      // ═══════════════════════════════════════════════════════════
+      // 3. ÉMETTRE DES PATH PULSES (basé sur longueur de recherche en TYPING)
+      // ═══════════════════════════════════════════════════════════
+
+      if (mode === 'typing' && coreNodeIndicesRef.current.length > 0) {
+        // Récupérer la longueur du texte de recherche
+        const searchLength = window.searchInputLength || 0
+        
+        if (searchLength > 0) {
+          // Plus le texte est long, plus on émet de pulses et plus ils sont rapides
+          const baseInterval = 400 - (searchLength * 15)
+          const pathInterval = Math.max(80, baseInterval) + Math.random() * 50
+          
+          const maxPulses = Math.min(3 + Math.floor(searchLength / 3), 15)
+          
+          if (now - lastPathPulseTimeRef.current > pathInterval) {
+            if (pathPulsesRef.current.filter(p => p.active).length < maxPulses) {
+              // Choisir un nœud qui n'a PAS été utilisé récemment pour éviter les paquets
+              const availableNodes = coreNodeIndicesRef.current.filter(
+                idx => !recentlyUsedNodesRef.current.includes(idx)
+              )
+              
+              // Si tous les nœuds ont été utilisés récemment, réinitialiser
+              const nodesToChooseFrom = availableNodes.length > 0 
+                ? availableNodes 
+                : coreNodeIndicesRef.current
+              
+              const randomCoreIndex = nodesToChooseFrom[
+                Math.floor(Math.random() * nodesToChooseFrom.length)
+              ]
+              
+              // Ajouter à la liste des nœuds récemment utilisés
+              recentlyUsedNodesRef.current.push(randomCoreIndex)
+              
+              // Limiter la taille de l'historique à 3 nœuds
+              if (recentlyUsedNodesRef.current.length > 3) {
+                recentlyUsedNodesRef.current.shift()
+              }
+              
+              pathPulsesRef.current.push({
+                id: nextIdRef.current++,
+                nodeIndex: randomCoreIndex,
+                progress: 0,
+                active: true,
+              })
+            }
+            
+            lastPathPulseTimeRef.current = now
+          }
+        }
+      }
+      
+      // MODE SEARCH: émettre beaucoup de pulses (effet intensif)
+      if (mode === 'search' && coreNodeIndicesRef.current.length > 0) {
+        const searchElapsed = now - searchModeStartRef.current
+        
+        // Émettre pendant toute la durée du mode search (2 secondes)
+        if (searchElapsed < 2000) {
+          const pathInterval = 60 + Math.random() * 40 // Très rapide
+          
+          if (now - lastPathPulseTimeRef.current > pathInterval) {
+            const maxPulses = 25 // Beaucoup de pulses simultanés
+            
+            if (pathPulsesRef.current.filter(p => p.active).length < maxPulses) {
+              // Choisir un nœud différent
+              const availableNodes = coreNodeIndicesRef.current.filter(
+                idx => !recentlyUsedNodesRef.current.includes(idx)
+              )
+              
+              const nodesToChooseFrom = availableNodes.length > 0 
+                ? availableNodes 
+                : coreNodeIndicesRef.current
+              
+              const randomCoreIndex = nodesToChooseFrom[
+                Math.floor(Math.random() * nodesToChooseFrom.length)
+              ]
+              
+              recentlyUsedNodesRef.current.push(randomCoreIndex)
+              if (recentlyUsedNodesRef.current.length > 3) {
+                recentlyUsedNodesRef.current.shift()
+              }
+              
+              pathPulsesRef.current.push({
+                id: nextIdRef.current++,
+                nodeIndex: randomCoreIndex,
+                progress: 0,
+                active: true,
+              })
+            }
+            
+            lastPathPulseTimeRef.current = now
+          }
+        }
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // 4. DESSINER LES PATH PULSES (core nodes → prompt)
+      // ═══════════════════════════════════════════════════════════
+
+      pathPulsesRef.current = pathPulsesRef.current.filter(pulse => {
+        if (!pulse.active) return false
+
+        const node = nodes[pulse.nodeIndex]
+        if (!node || node.x === undefined || node.y === undefined) {
+          pulse.active = false
+          return false
+        }
+
+        // Vitesse basée sur la longueur du texte (plus long = plus rapide)
+        const searchLength = window.searchInputLength || 0
+        const speedMultiplier = mode === 'typing' ? Math.min(1 + searchLength / 20, 2.5) : 1
+        pulse.progress += 0.006 * speedMultiplier
+
+        if (pulse.progress >= 1) {
+          pulse.active = false
+          return false
+        }
+
+        // Calculer le point cible sur le prompt (utiliser position RÉELLE du nœud)
+        const startX = node.x
+        const startY = node.y
+        const target = getClosestPointOnRect(startX, startY, promptRect)
+        const endX = target.x
+        const endY = target.y
+
+        // Delta direction
+        const deltaX = endX - startX
+        const deltaY = endY - startY
+        
+        if (Math.hypot(deltaX, deltaY) === 0) {
+          pulse.active = false
+          return false
+        }
+
+        // Dessiner un segment représentant 20-25% du chemin total
+        const SEGMENT_LENGTH = 0.25
+        const oldProgress = Math.max(0, pulse.progress - SEGMENT_LENGTH)
+        const newProgress = pulse.progress
+
+        // Easing pour les deux positions
+        const oldEased = 1 - Math.pow(1 - oldProgress, 3)
+        const newEased = 1 - Math.pow(1 - newProgress, 3)
+
+        // Positions du segment
+        const oldX = startX + deltaX * oldEased
+        const oldY = startY + deltaY * oldEased
+        const newX = startX + deltaX * newEased
+        const newY = startY + deltaY * newEased
+
+        // Dessiner le segment de ligne
+        ctx.beginPath()
+        ctx.moveTo(oldX, oldY)
+        ctx.lineTo(newX, newY)
+        ctx.strokeStyle = 'rgba(120,200,255,0.95)'
+        ctx.lineWidth = 2
+        ctx.shadowBlur = 18
+        ctx.shadowColor = 'rgba(120,200,255,1)'
+        ctx.stroke()
+        ctx.shadowBlur = 0
+
+        return true
+      })
+
+      // ═══════════════════════════════════════════════════════════
+      // 5. BEAM PROGRESSIF (contour du prompt puis vertical)
+      // ═══════════════════════════════════════════════════════════
+
       if (majorBeamRef.current && majorBeamRef.current.active) {
         const beam = majorBeamRef.current
+        
+        // Calculer le périmètre du prompt
+        const perimeterPoints: Array<{x: number, y: number}> = []
+        const numPoints = 80 // Nombre de points sur le contour
+        const top = promptRect.top
+        const bottom = promptRect.bottom
+        const left = promptRect.left
+        const right = promptRect.right
+        const width = promptRect.width
+        const height = promptRect.height
+        
+        // Créer le chemin: haut gauche → droite → bas droite → gauche → haut gauche
+        // Top edge (gauche à droite)
+        for (let i = 0; i <= numPoints/4; i++) {
+          const t = i / (numPoints/4)
+          perimeterPoints.push({ x: left + width * t, y: top })
+        }
+        // Right edge (haut en bas)
+        for (let i = 0; i <= numPoints/4; i++) {
+          const t = i / (numPoints/4)
+          perimeterPoints.push({ x: right, y: top + height * t })
+        }
+        // Bottom edge (droite à gauche)
+        for (let i = 0; i <= numPoints/4; i++) {
+          const t = i / (numPoints/4)
+          perimeterPoints.push({ x: right - width * t, y: bottom })
+        }
+        // Left edge (bas en haut)
+        for (let i = 0; i <= numPoints/4; i++) {
+          const t = i / (numPoints/4)
+          perimeterPoints.push({ x: left, y: bottom - height * t })
+        }
 
-        // Gestion des phases : fade-in (120ms), hold (200ms), fade-out (250ms)
-        if (beam.phase === 'fade-in') {
-          beam.progress += 1 / (120 / 16.67) // 120ms à 60fps
-          beam.opacity = beam.progress * 0.5 // Max opacity = 0.5
-          if (beam.progress >= 1) {
-            beam.phase = 'hold'
+        if (beam.phase === 'contour') {
+          // Phase 1: Parcourir le contour
+          beam.contourProgress += 0.04 // Vitesse du parcours
+          
+          if (beam.contourProgress >= 1) {
+            beam.phase = 'vertical'
             beam.progress = 0
           }
-        } else if (beam.phase === 'hold') {
-          beam.progress += 1 / (200 / 16.67) // 200ms à 60fps
-          if (beam.progress >= 1) {
-            beam.phase = 'fade-out'
-            beam.progress = 0
+          
+          // Dessiner plusieurs traits le long du contour (effet de paquet)
+          const numTrails = 8 // Nombre de traits dans le paquet
+          for (let i = 0; i < numTrails; i++) {
+            const offset = i * 0.03 // Espacement entre les traits
+            const trailProgress = Math.max(0, Math.min(1, beam.contourProgress - offset))
+            
+            if (trailProgress > 0) {
+              const pointIndex = Math.floor(trailProgress * (perimeterPoints.length - 1))
+              const nextIndex = Math.min(pointIndex + 1, perimeterPoints.length - 1)
+              
+              if (pointIndex < perimeterPoints.length) {
+                const p1 = perimeterPoints[pointIndex]
+                const p2 = perimeterPoints[nextIndex]
+                
+                // Fade out pour les traits plus anciens
+                const opacity = beam.opacity * (1 - i / numTrails) * 0.8
+                
+                ctx.beginPath()
+                ctx.moveTo(p1.x, p1.y)
+                ctx.lineTo(p2.x, p2.y)
+                ctx.strokeStyle = `rgba(80, 150, 255, ${opacity})`
+                ctx.lineWidth = 2
+                ctx.shadowBlur = 15
+                ctx.shadowColor = `rgba(80, 150, 255, ${opacity})`
+                ctx.stroke()
+                ctx.shadowBlur = 0
+              }
+            }
           }
-        } else if (beam.phase === 'fade-out') {
-          beam.progress += 1 / (250 / 16.67) // 250ms à 60fps
-          beam.opacity = 0.5 * (1 - beam.progress)
+        } else if (beam.phase === 'vertical') {
+          // Phase 2: Traits verticaux vers le bas
+          beam.progress += 0.015
+          
           if (beam.progress >= 1) {
             beam.active = false
             majorBeamRef.current = null
           }
-        }
-
-        if (beam.active) {
-          // Dessiner une simple ligne verticale de 2px
-          const centerX = promptRect.left + promptRect.width / 2
           
-          ctx.beginPath()
-          ctx.moveTo(centerX, promptRect.bottom)
-          ctx.lineTo(centerX, canvas.height)
-          ctx.strokeStyle = `rgba(80, 150, 255, ${beam.opacity})`
-          ctx.lineWidth = 2
-          ctx.shadowBlur = 12
-          ctx.shadowColor = `rgba(80, 150, 255, ${beam.opacity})`
-          ctx.stroke()
-          ctx.shadowBlur = 0
+          // Créer plusieurs traits verticaux espacés
+          const centerX = promptRect.left + promptRect.width / 2
+          const beamCount = 6
+          const spacing = 8
+          const totalWidth = (beamCount - 1) * spacing
+          const startX = centerX - totalWidth / 2
+          
+          for (let i = 0; i < beamCount; i++) {
+            const x = startX + i * spacing
+            
+            // Chaque trait démarre avec un léger délai
+            const delay = i * 0.08
+            const adjustedProgress = Math.max(0, beam.progress - delay)
+            
+            if (adjustedProgress > 0) {
+              const maxLength = canvas.height - promptRect.bottom
+              const currentLength = maxLength * Math.min(1, adjustedProgress * 1.5)
+              
+              const opacity = beam.opacity * (1 - adjustedProgress * 0.5)
+              
+              ctx.beginPath()
+              ctx.moveTo(x, promptRect.bottom)
+              ctx.lineTo(x, promptRect.bottom + currentLength)
+              ctx.strokeStyle = `rgba(80, 150, 255, ${opacity})`
+              ctx.lineWidth = 2
+              ctx.shadowBlur = 12
+              ctx.shadowColor = `rgba(80, 150, 255, ${opacity})`
+              ctx.stroke()
+              ctx.shadowBlur = 0
+            }
+          }
         }
       }
 

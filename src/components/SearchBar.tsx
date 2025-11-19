@@ -4,6 +4,7 @@ import { useState, FormEvent, KeyboardEvent, useEffect, forwardRef, useImperativ
 declare global {
   interface Window {
     triggerMajorPulse?: () => void
+    searchInputLength?: number
   }
 }
 
@@ -27,9 +28,13 @@ export interface SearchBarRef {
 const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(({ onTypingChange }, ref) => {
   const [searchValue, setSearchValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
-  const [showBurst, setShowBurst] = useState(false)
   const [pulseGlow, setPulseGlow] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Exposer la longueur du texte globalement
+  useEffect(() => {
+    window.searchInputLength = searchValue.length
+  }, [searchValue])
 
   // Exposer l'élément conteneur via ref
   useImperativeHandle(ref, () => ({
@@ -61,17 +66,10 @@ const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(({ onTypingChange }, 
 
     console.log('Recherche soumise:', searchValue)
     
-    // Déclencher le major pulse (beam + multiple pulses)
+    // Déclencher le major pulse (beam vertical)
     if (window.triggerMajorPulse) {
       window.triggerMajorPulse()
     }
-    
-    // Déclencher l'animation de burst local
-    setShowBurst(true)
-
-    setTimeout(() => {
-      setShowBurst(false)
-    }, 1000)
 
     // TODO: Intégrer l'API TailorLead ici
   }
@@ -85,14 +83,6 @@ const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(({ onTypingChange }, 
 
   return (
     <div className="relative" ref={containerRef}>
-      {/* Burst effect (cercles qui partent du prompt) */}
-      {showBurst && (
-        <>
-          <div className="absolute inset-0 rounded-xl border-2 border-blue-400 animate-burst-1 pointer-events-none" />
-          <div className="absolute inset-0 rounded-xl border-2 border-blue-400 animate-burst-2 pointer-events-none" />
-        </>
-      )}
-
       {/* Search Input */}
       <form onSubmit={handleSubmit} className="relative z-10 w-full flex justify-center">
         <input

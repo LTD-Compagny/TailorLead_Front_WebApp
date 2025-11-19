@@ -34,57 +34,58 @@ function PremiumNetworkComponent() {
     await loadSlim(engine)
   }, [])
 
-  // Callback appelé quand tsParticles est chargé - MÉTHODE CORRECTE
   const particlesLoaded = useCallback(async (container?: unknown) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cont = container as any
     if (!cont || !cont.particles) {
-      console.warn("⚠️ PremiumNetwork: container not ready")
+      console.warn('⚠️ PremiumNetwork: container not ready')
       return
     }
 
+    console.log('✅ PremiumNetwork: particlesLoaded callback received container')
     containerRef.current = cont
 
     const extractNodes = () => {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const currentContainer = containerRef.current as any
-        if (!currentContainer) return
+        const c = containerRef.current as any
+        if (!c) {
+          console.warn('⚠️ PremiumNetwork: containerRef is null')
+          return
+        }
 
-        const particlesArray = currentContainer.particles.array || []
+        const ratio = c.retina?.pixelRatio || 1
+        const particlesArray = c.particles?.array || c.particles?._array || []
         
+        console.log('🔍 PremiumNetwork: particles.array length =', particlesArray.length, 'ratio =', ratio)
+
         if (particlesArray.length === 0) {
-          console.warn("⚠️ PremiumNetwork: No particles in array")
+          console.warn('⚠️ PremiumNetwork: particles array is empty, will retry...')
           return
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const nodes = particlesArray.map((p: any) => ({
-          x: p.position.x,
-          y: p.position.y,
+          x: p.position.x / ratio,
+          y: p.position.y / ratio,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           links: (p.links || []).map((l: any) => ({
-            x: l.destination?.position?.x || 0,
-            y: l.destination?.position?.y || 0,
+            x: (l.destination?.position?.x || 0) / ratio,
+            y: (l.destination?.position?.y || 0) / ratio,
           })),
         }))
 
         window.premiumNetworkNodes = nodes
-        console.log("🔥 PremiumNetwork: Extracted", nodes.length, "nodes with links")
+        console.log('🔥 PremiumNetwork: extracted', nodes.length, 'scaled nodes')
       } catch (error) {
-        console.warn("⚠️ PremiumNetwork: Extraction error", error)
+        console.warn('⚠️ PremiumNetwork: Could not extract nodes', error)
       }
     }
 
-    // Extraction initiale
-    extractNodes()
-
-    // Nettoyer l'ancien intervalle s'il existe
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-    }
-
-    // Mettre à jour périodiquement pour suivre les mouvements des particules
+    // Attendre un peu que les particules soient initialisées
+    setTimeout(extractNodes, 300)
+    
+    if (intervalRef.current) clearInterval(intervalRef.current)
     intervalRef.current = window.setInterval(extractNodes, 1000)
   }, [])
 

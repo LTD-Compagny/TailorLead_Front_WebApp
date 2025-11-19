@@ -98,7 +98,12 @@ const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(({ onTypingChange }, 
         <input
           type="text"
           value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
+          onChange={(e) => {
+            setSearchValue(e.target.value)
+            if (window.triggerMinorPulse) {
+              window.triggerMinorPulse()
+            }
+          }}
           onKeyDown={handleKeyDown}
           placeholder="Enter your best Screening Wishlist"
           className={`
@@ -107,13 +112,13 @@ const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(({ onTypingChange }, 
             focus:outline-none transition-all duration-150 shadow-2xl
             ${
               isTyping
-                ? 'border-2 border-[#4dafff] animate-pulse-border'
+                ? 'border border-[rgba(120,180,255,0.35)]'
                 : 'border border-white/20'
             }
           `}
           style={{
             boxShadow: pulseGlow
-              ? '0 0 20px rgba(80, 150, 255, 0.5), 0 0 40px rgba(58, 163, 255, 0.3)'
+              ? '0 0 8px rgba(120,180,255,0.25)'
               : undefined,
           }}
         />

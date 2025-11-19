@@ -1,98 +1,110 @@
+import type { CompanyAnalysisData } from '../../data/loadData'
+
 interface FinancialAnalysisTabProps {
   siren: string
+  companyData: CompanyAnalysisData
 }
 
-interface FinancialData {
-  year: number
-  turnover: number
-  ebitda: number
-  netProfit: number
-  totalAssets: number
-  totalDebt: number
-  equity: number
-}
+export default function FinancialAnalysisTab({ siren: _siren, companyData }: FinancialAnalysisTabProps) {
+  const finances = companyData.data.pappers.finances || []
+  const financesSorted = [...finances].sort((a: any, b: any) => b.annee - a.annee)
 
-// Mock data
-const mockFinancials: FinancialData[] = [
-  {
-    year: 2023,
-    turnover: 35900000000,
-    ebitda: 6200000000,
-    netProfit: 3500000000,
-    totalAssets: 58000000000,
-    totalDebt: 12000000000,
-    equity: 28000000000,
-  },
-  {
-    year: 2022,
-    turnover: 34200000000,
-    ebitda: 5900000000,
-    netProfit: 3200000000,
-    totalAssets: 55000000000,
-    totalDebt: 13000000000,
-    equity: 26000000000,
-  },
-  {
-    year: 2021,
-    turnover: 28900000000,
-    ebitda: 4800000000,
-    netProfit: 2600000000,
-    totalAssets: 52000000000,
-    totalDebt: 14000000000,
-    equity: 24000000000,
-  },
-]
+  const formatCurrency = (value: number | null) => {
+    if (value === null || value === undefined) return 'N/A'
+    if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1)}M€`
+    }
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(0)}K€`
+    }
+    return `${value.toFixed(0)}€`
+  }
 
-const formatCurrency = (value: number) => {
-  return `€${(value / 1000000).toFixed(0)}M`
-}
+  const formatPercentage = (value: number | null) => {
+    if (value === null || value === undefined) return 'N/A'
+    return `${value.toFixed(2)}%`
+  }
 
-const formatPercentage = (value: number) => {
-  return `${value.toFixed(2)}%`
-}
+  if (financesSorted.length === 0) {
+    return (
+      <div className="bg-white border border-[#E1E5EB] p-4">
+        <div className="text-sm text-gray-600">Aucune donnée financière disponible</div>
+      </div>
+    )
+  }
 
-export default function FinancialAnalysisTab({ siren: _siren }: FinancialAnalysisTabProps) {
-  const latest = mockFinancials[0]
-  const previous = mockFinancials[1]
+  const latest = financesSorted[0]
+  const previous = financesSorted[1]
 
-  const ebitdaMargin = (latest.ebitda / latest.turnover) * 100
-  const netMargin = (latest.netProfit / latest.turnover) * 100
-  const debtToEquity = (latest.totalDebt / latest.equity) * 100
-  const roe = (latest.netProfit / latest.equity) * 100
+  const turnoverGrowth = previous
+    ? ((latest.chiffre_affaires - previous.chiffre_affaires) / previous.chiffre_affaires) * 100
+    : null
 
-  const turnoverGrowth = ((latest.turnover - previous.turnover) / previous.turnover) * 100
-  const ebitdaGrowth = ((latest.ebitda - previous.ebitda) / previous.ebitda) * 100
+  // Extraire l'analyse IA financière
+  const analyseGlobale = companyData.analyse_globale_ia?.report || ''
+  const extractFinancialAnalysis = () => {
+    if (!analyseGlobale) return null
+    
+    // Chercher les sections financières dans le rapport
+    const financialKeywords = ['rentabilité', 'endettement', 'trésorerie', 'marge', 'CA', 'chiffre d\'affaires', 'résultat', 'EBITDA']
+    const sentences = analyseGlobale.split(/[.!?]\s+/)
+    const financialSentences = sentences.filter((s: string) => 
+      financialKeywords.some(keyword => s.toLowerCase().includes(keyword.toLowerCase()))
+    )
+    
+    if (financialSentences.length > 0) {
+      return financialSentences.slice(0, 3).join('. ') + '.'
+    }
+    
+    // Fallback: prendre le premier paragraphe
+    const firstParagraph = analyseGlobale.split('\n\n')[0] || analyseGlobale.substring(0, 300)
+    return firstParagraph.length > 300 ? firstParagraph.substring(0, 300) + '...' : firstParagraph
+  }
+
+  const financialAnalysisText = extractFinancialAnalysis()
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-4">
+      {/* IA Financial Analysis Block */}
+      {financialAnalysisText && (
+        <section className="border border-[#E1E5EB] bg-white p-4 space-y-2">
+          <h2 className="text-sm font-semibold text-[#1A1C20] uppercase tracking-wide">
+            Analyse IA de la situation financière
+          </h2>
+          <p className="text-xs text-[#4B4F5C] leading-relaxed">
+            {financialAnalysisText}
+          </p>
+        </section>
+      )}
+
       {/* Key Metrics */}
       <div className="grid grid-cols-4 gap-4">
         <div className="bg-white border border-[#E1E5EB] p-4">
-          <div className="text-xs text-gray-600 uppercase mb-2">Turnover 2023</div>
-          <div className="text-2xl font-bold text-[#1A1C20]">{formatCurrency(latest.turnover)}</div>
-          <div className={`text-xs mt-1 ${turnoverGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {turnoverGrowth >= 0 ? '+' : ''}{turnoverGrowth.toFixed(1)}% YoY
-          </div>
+          <div className="text-xs text-[#4B4F5C] uppercase mb-2">Chiffre d'affaires {latest.annee}</div>
+          <div className="text-2xl font-bold text-[#1A1C20]">{formatCurrency(latest.chiffre_affaires)}</div>
+          {turnoverGrowth !== null && (
+            <div className={`text-xs mt-1 ${turnoverGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {turnoverGrowth >= 0 ? '+' : ''}{turnoverGrowth.toFixed(1)}% YoY
+            </div>
+          )}
         </div>
 
         <div className="bg-white border border-[#E1E5EB] p-4">
-          <div className="text-xs text-gray-600 uppercase mb-2">EBITDA 2023</div>
-          <div className="text-2xl font-bold text-[#1A1C20]">{formatCurrency(latest.ebitda)}</div>
-          <div className={`text-xs mt-1 ${ebitdaGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {ebitdaGrowth >= 0 ? '+' : ''}{ebitdaGrowth.toFixed(1)}% YoY
-          </div>
+          <div className="text-xs text-[#4B4F5C] uppercase mb-2">Résultat net {latest.annee}</div>
+          <div className="text-2xl font-bold text-[#1A1C20]">{formatCurrency(latest.resultat)}</div>
+          <div className="text-xs text-[#4B4F5C] mt-1">Marge: {formatPercentage(latest.marge_nette)}</div>
         </div>
 
         <div className="bg-white border border-[#E1E5EB] p-4">
-          <div className="text-xs text-gray-600 uppercase mb-2">Net Profit 2023</div>
-          <div className="text-2xl font-bold text-[#1A1C20]">{formatCurrency(latest.netProfit)}</div>
-          <div className="text-xs text-gray-600 mt-1">Margin: {formatPercentage(netMargin)}</div>
+          <div className="text-xs text-[#4B4F5C] uppercase mb-2">EBITDA {latest.annee}</div>
+          <div className="text-2xl font-bold text-[#1A1C20]">{formatCurrency(latest.excedent_brut_exploitation)}</div>
+          <div className="text-xs text-[#4B4F5C] mt-1">Marge: {formatPercentage(latest.taux_marge_EBITDA)}</div>
         </div>
 
         <div className="bg-white border border-[#E1E5EB] p-4">
-          <div className="text-xs text-gray-600 uppercase mb-2">Total Debt</div>
-          <div className="text-2xl font-bold text-[#1A1C20]">{formatCurrency(latest.totalDebt)}</div>
-          <div className="text-xs text-gray-600 mt-1">D/E: {formatPercentage(debtToEquity)}</div>
+          <div className="text-xs text-[#4B4F5C] uppercase mb-2">Fonds propres {latest.annee}</div>
+          <div className="text-2xl font-bold text-[#1A1C20]">{formatCurrency(latest.fonds_propres)}</div>
+          <div className="text-xs text-[#4B4F5C] mt-1">ROE: {formatPercentage(latest.rentabilite_fonds_propres)}</div>
         </div>
       </div>
 
@@ -102,34 +114,50 @@ export default function FinancialAnalysisTab({ siren: _siren }: FinancialAnalysi
           <h3 className="text-sm font-bold text-[#1A1C20] mb-4 uppercase">Profitability Ratios</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">EBITDA Margin</span>
-              <span className="text-sm font-bold text-[#1A1C20]">{formatPercentage(ebitdaMargin)}</span>
+              <span className="text-sm text-[#4B4F5C]">Marge brute</span>
+              <span className="text-sm font-bold text-[#1A1C20]">{formatPercentage(latest.taux_marge_brute)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Net Margin</span>
-              <span className="text-sm font-bold text-[#1A1C20]">{formatPercentage(netMargin)}</span>
+              <span className="text-sm text-[#4B4F5C]">Marge EBITDA</span>
+              <span className="text-sm font-bold text-[#1A1C20]">{formatPercentage(latest.taux_marge_EBITDA)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">ROE</span>
-              <span className="text-sm font-bold text-[#1A1C20]">{formatPercentage(roe)}</span>
+              <span className="text-sm text-[#4B4F5C]">Marge opérationnelle</span>
+              <span className="text-sm font-bold text-[#1A1C20]">{formatPercentage(latest.taux_marge_operationnelle)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[#4B4F5C]">Marge nette</span>
+              <span className="text-sm font-bold text-[#1A1C20]">{formatPercentage(latest.marge_nette)}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[#4B4F5C]">ROE</span>
+              <span className="text-sm font-bold text-[#1A1C20]">{formatPercentage(latest.rentabilite_fonds_propres)}</span>
             </div>
           </div>
         </div>
 
         <div className="bg-white border border-[#E1E5EB] p-4">
-          <h3 className="text-sm font-bold text-[#1A1C20] mb-4 uppercase">Leverage Ratios</h3>
+          <h3 className="text-sm font-bold text-[#1A1C20] mb-4 uppercase">Leverage & Liquidity</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Debt / Equity</span>
-              <span className="text-sm font-bold text-[#1A1C20]">{formatPercentage(debtToEquity)}</span>
+              <span className="text-sm text-[#4B4F5C]">Ratio d'endettement</span>
+              <span className="text-sm font-bold text-[#1A1C20]">{latest.ratio_endettement?.toFixed(2) || 'N/A'}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Debt / EBITDA</span>
-              <span className="text-sm font-bold text-[#1A1C20]">{(latest.totalDebt / latest.ebitda).toFixed(2)}x</span>
+              <span className="text-sm text-[#4B4F5C]">Autonomie financière</span>
+              <span className="text-sm font-bold text-[#1A1C20]">{formatPercentage(latest.autonomie_financiere)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Equity</span>
-              <span className="text-sm font-bold text-[#1A1C20]">{formatCurrency(latest.equity)}</span>
+              <span className="text-sm text-[#4B4F5C]">Liquidité générale</span>
+              <span className="text-sm font-bold text-[#1A1C20]">{latest.liquidite_generale?.toFixed(2) || 'N/A'}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[#4B4F5C]">BFR (jours CA)</span>
+              <span className="text-sm font-bold text-[#1A1C20]">{latest.BFR_jours_CA?.toFixed(1) || 'N/A'} jours</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-[#4B4F5C]">Trésorerie</span>
+              <span className="text-sm font-bold text-[#1A1C20]">{formatCurrency(latest.tresorerie)}</span>
             </div>
           </div>
         </div>
@@ -143,25 +171,29 @@ export default function FinancialAnalysisTab({ siren: _siren }: FinancialAnalysi
         <table className="w-full">
           <thead className="bg-[#F5F7FA]">
             <tr className="border-b border-[#E1E5EB]">
-              <th className="text-left text-xs font-bold text-gray-600 uppercase px-4 py-3">Year</th>
-              <th className="text-right text-xs font-bold text-gray-600 uppercase px-4 py-3">Turnover</th>
+              <th className="text-left text-xs font-bold text-gray-600 uppercase px-4 py-3">Année</th>
+              <th className="text-right text-xs font-bold text-gray-600 uppercase px-4 py-3">CA</th>
+              <th className="text-right text-xs font-bold text-gray-600 uppercase px-4 py-3">Résultat</th>
               <th className="text-right text-xs font-bold text-gray-600 uppercase px-4 py-3">EBITDA</th>
-              <th className="text-right text-xs font-bold text-gray-600 uppercase px-4 py-3">Net Profit</th>
-              <th className="text-right text-xs font-bold text-gray-600 uppercase px-4 py-3">Total Assets</th>
-              <th className="text-right text-xs font-bold text-gray-600 uppercase px-4 py-3">Total Debt</th>
+              <th className="text-right text-xs font-bold text-gray-600 uppercase px-4 py-3">Fonds propres</th>
+              <th className="text-right text-xs font-bold text-gray-600 uppercase px-4 py-3">Dettes</th>
             </tr>
           </thead>
           <tbody>
-            {mockFinancials.map((data, index) => (
+            {financesSorted.map((data: any, index: number) => (
               <tr key={index} className="border-b border-[#E1E5EB] hover:bg-[#F5F7FA]">
-                <td className="px-4 py-3 text-sm font-medium text-[#1A1C20]">{data.year}</td>
+                <td className="px-4 py-3 text-sm font-medium text-[#1A1C20]">{data.annee}</td>
                 <td className="px-4 py-3 text-sm text-right font-medium text-[#1A1C20]">
-                  {formatCurrency(data.turnover)}
+                  {formatCurrency(data.chiffre_affaires)}
                 </td>
-                <td className="px-4 py-3 text-sm text-right text-gray-600">{formatCurrency(data.ebitda)}</td>
-                <td className="px-4 py-3 text-sm text-right text-gray-600">{formatCurrency(data.netProfit)}</td>
-                <td className="px-4 py-3 text-sm text-right text-gray-600">{formatCurrency(data.totalAssets)}</td>
-                <td className="px-4 py-3 text-sm text-right text-gray-600">{formatCurrency(data.totalDebt)}</td>
+                <td className="px-4 py-3 text-sm text-right text-[#4B4F5C]">{formatCurrency(data.resultat)}</td>
+                <td className="px-4 py-3 text-sm text-right text-[#4B4F5C]">
+                  {formatCurrency(data.excedent_brut_exploitation)}
+                </td>
+                <td className="px-4 py-3 text-sm text-right text-[#4B4F5C]">{formatCurrency(data.fonds_propres)}</td>
+                <td className="px-4 py-3 text-sm text-right text-[#4B4F5C]">
+                  {formatCurrency(data.dettes_financieres)}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -170,4 +202,3 @@ export default function FinancialAnalysisTab({ siren: _siren }: FinancialAnalysi
     </div>
   )
 }
-

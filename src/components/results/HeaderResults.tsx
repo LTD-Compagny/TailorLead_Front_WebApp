@@ -4,7 +4,7 @@ export default function HeaderResults() {
   const navigate = useNavigate()
 
   return (
-    <header className="bg-white border-b border-[#E1E5EB] sticky top-0 z-50">
+    <header className="bg-white border-b border-[#E1E5EB]">
       <div className="px-6 py-4 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-[#1A1C20]">Résultats de recherche</h1>

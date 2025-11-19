@@ -1,0 +1,1058 @@
+{
+  "export_date": "2025-11-19T11:48:49.340Z",
+  "query": "quincaillerie a paris de plus de 2M de CA ",
+  "total_results": 10,
+  "export_type": "recherche_initiale",
+  "results": [
+    {
+      "siren": "542020862",
+      "nom_entreprise": "LAPEYRE",
+      "denomination": "LAPEYRE",
+      "forme_juridique": "SAS, société par actions simplifiée",
+      "code_naf": "47.52B",
+      "libelle_code_naf": "Commerce de détail de quincaillerie, peintures et verres en grandes surfaces (400 m² et plus)",
+      "domaine_activite": "Commerce de détail, à l'exception des automobiles et des motocycles",
+      "date_creation": "1954-01-01",
+      "capital": 82496636,
+      "siege": {
+        "siret": "54202086201925",
+        "siret_formate": "542 020 862 01925",
+        "nic": "01925",
+        "numero_voie": 3,
+        "indice_repetition": null,
+        "type_voie": "BOULEVARD",
+        "libelle_voie": "DE SEBASTOPOL",
+        "complement_adresse": null,
+        "adresse_ligne_1": "3 BOULEVARD DE SEBASTOPOL",
+        "adresse_ligne_2": null,
+        "code_postal": "75001",
+        "code_commune": "75101",
+        "ville": "PARIS",
+        "pays": "France",
+        "code_pays": "FR"
+      },
+      "statut_rcs": "Inscrit",
+      "valuation": {
+        "raw": {
+          "min": 190567,
+          "max": 772169,
+          "method": "capital",
+          "reliability": "low",
+          "details": [
+            "Capital: 82497K€",
+            "Multiple secteur (commerce): 2x-5x capital",
+            "Ancienneté: 71 ans (×1.00-×1.20)",
+            "Localisation: PARIS (×1.10-×1.30)",
+            "Capital: 82497K€ (×1.05-×1.20)"
+          ],
+          "availableData": {
+            "capital": true,
+            "effectif": false,
+            "secteur": true,
+            "dateCreation": true,
+            "localisation": true
+          },
+          "sector": "commerce",
+          "estimatedEmployees": null,
+          "ageYears": 71
+        },
+        "formatted": {
+          "display": "190.6M€ - 772.2M€",
+          "range": {
+            "min": 190567,
+            "max": 772169
+          },
+          "badge": {
+            "color": "orange",
+            "label": "Indicatif"
+          },
+          "method": "capital",
+          "tooltip": "Capital: 82497K€\nMultiple secteur (commerce): 2x-5x capital\nAncienneté: 71 ans (×1.00-×1.20)\nLocalisation: PARIS (×1.10-×1.30)\nCapital: 82497K€ (×1.05-×1.20)"
+        }
+      },
+      "interestScore": {
+        "raw": {
+          "score": 60,
+          "level": "high",
+          "levelLabel": "Élevé",
+          "levelColor": "blue",
+          "factors": {
+            "size": 0,
+            "maturity": 10,
+            "location": 15,
+            "capital": 10,
+            "sector": 10,
+            "valuation": 15
+          },
+          "details": [
+            "Entreprise ancienne (71 ans)",
+            "Localisation Île-de-France (très attractive)",
+            "Capital élevé (82497K€)",
+            "Secteur: Commerce",
+            "Valorisation très élevée (481.4M€)"
+          ],
+          "summary": "Entreprise intéressante avec de bons critères"
+        },
+        "formatted": {
+          "display": "60/100",
+          "score": 60,
+          "level": "high",
+          "levelLabel": "Élevé",
+          "badge": {
+            "bg": "bg-blue-500/20",
+            "text": "text-blue-400",
+            "border": "border-blue-500/50",
+            "label": "Élevé"
+          },
+          "summary": "Entreprise intéressante avec de bons critères",
+          "tooltip": "Entreprise ancienne (71 ans)\nLocalisation Île-de-France (très attractive)\nCapital élevé (82497K€)\nSecteur: Commerce\nValorisation très élevée (481.4M€)"
+        }
+      }
+    },
+    {
+      "siren": "451678973",
+      "nom_entreprise": "CASTORAMA FRANCE",
+      "denomination": "CASTORAMA FRANCE",
+      "forme_juridique": "SAS, société par actions simplifiée",
+      "code_naf": "47.52B",
+      "libelle_code_naf": "Commerce de détail de quincaillerie, peintures et verres en grandes surfaces (400 m² et plus)",
+      "domaine_activite": "Commerce de détail, à l'exception des automobiles et des motocycles",
+      "date_creation": "2004-01-20",
+      "capital": 305868800,
+      "siege": {
+        "siret": "45167897300012",
+        "siret_formate": "451 678 973 00012",
+        "nic": "00012",
+        "numero_voie": null,
+        "indice_repetition": null,
+        "type_voie": null,
+        "libelle_voie": "ZONE INDUSTRIELLE",
+        "complement_adresse": null,
+        "adresse_ligne_1": "ZONE INDUSTRIELLE",
+        "adresse_ligne_2": null,
+        "code_postal": "59175",
+        "code_commune": "59585",
+        "ville": "TEMPLEMARS",
+        "pays": "France",
+        "code_pays": "FR"
+      },
+      "statut_rcs": "Inscrit",
+      "valuation": {
+        "raw": {
+          "min": 578092,
+          "max": 2312368,
+          "method": "capital",
+          "reliability": "low",
+          "details": [
+            "Capital: 305869K€",
+            "Multiple secteur (commerce): 2x-5x capital",
+            "Ancienneté: 21 ans (×1.00-×1.20)",
+            "Localisation: TEMPLEMARS (×0.90-×1.05)",
+            "Capital: 305869K€ (×1.05-×1.20)"
+          ],
+          "availableData": {
+            "capital": true,
+            "effectif": false,
+            "secteur": true,
+            "dateCreation": true,
+            "localisation": true
+          },
+          "sector": "commerce",
+          "estimatedEmployees": null,
+          "ageYears": 21
+        },
+        "formatted": {
+          "display": "578.1M€ - 2312.4M€",
+          "range": {
+            "min": 578092,
+            "max": 2312368
+          },
+          "badge": {
+            "color": "orange",
+            "label": "Indicatif"
+          },
+          "method": "capital",
+          "tooltip": "Capital: 305869K€\nMultiple secteur (commerce): 2x-5x capital\nAncienneté: 21 ans (×1.00-×1.20)\nLocalisation: TEMPLEMARS (×0.90-×1.05)\nCapital: 305869K€ (×1.05-×1.20)"
+        }
+      },
+      "interestScore": {
+        "raw": {
+          "score": 57,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "levelColor": "yellow",
+          "factors": {
+            "size": 0,
+            "maturity": 15,
+            "location": 7,
+            "capital": 10,
+            "sector": 10,
+            "valuation": 15
+          },
+          "details": [
+            "Entreprise bien établie (21 ans)",
+            "Localisation TEMPLEMARS",
+            "Capital élevé (305869K€)",
+            "Secteur: Commerce",
+            "Valorisation très élevée (1445.2M€)"
+          ],
+          "summary": "Entreprise moyennement attractive"
+        },
+        "formatted": {
+          "display": "57/100",
+          "score": 57,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "badge": {
+            "bg": "bg-yellow-500/20",
+            "text": "text-yellow-400",
+            "border": "border-yellow-500/50",
+            "label": "Moyen"
+          },
+          "summary": "Entreprise moyennement attractive",
+          "tooltip": "Entreprise bien établie (21 ans)\nLocalisation TEMPLEMARS\nCapital élevé (305869K€)\nSecteur: Commerce\nValorisation très élevée (1445.2M€)"
+        }
+      }
+    },
+    {
+      "siren": "406680314",
+      "nom_entreprise": "BRICORAMA FRANCE",
+      "denomination": "BRICORAMA FRANCE",
+      "forme_juridique": "SASU, société par actions simplifiée unipersonnelle",
+      "code_naf": "47.52B",
+      "libelle_code_naf": "Commerce de détail de quincaillerie, peintures et verres en grandes surfaces (400 m² et plus)",
+      "domaine_activite": "Commerce de détail, à l'exception des automobiles et des motocycles",
+      "date_creation": "1966-01-01",
+      "capital": 18442240.74,
+      "siege": {
+        "siret": "40668031401629",
+        "siret_formate": "406 680 314 01629",
+        "nic": "01629",
+        "numero_voie": 13,
+        "indice_repetition": null,
+        "type_voie": "BOULEVARD",
+        "libelle_voie": "DU MONT D'EST",
+        "complement_adresse": null,
+        "adresse_ligne_1": "13 BOULEVARD DU MONT D'EST",
+        "adresse_ligne_2": null,
+        "code_postal": "93160",
+        "code_commune": "93051",
+        "ville": "NOISY-LE-GRAND",
+        "pays": "France",
+        "code_pays": "FR"
+      },
+      "statut_rcs": "Inscrit",
+      "valuation": {
+        "raw": {
+          "min": 42602,
+          "max": 172619,
+          "method": "capital",
+          "reliability": "low",
+          "details": [
+            "Capital: 18442K€",
+            "Multiple secteur (commerce): 2x-5x capital",
+            "Ancienneté: 59 ans (×1.00-×1.20)",
+            "Localisation: NOISY-LE-GRAND (×1.10-×1.30)",
+            "Capital: 18442K€ (×1.05-×1.20)"
+          ],
+          "availableData": {
+            "capital": true,
+            "effectif": false,
+            "secteur": true,
+            "dateCreation": true,
+            "localisation": true
+          },
+          "sector": "commerce",
+          "estimatedEmployees": null,
+          "ageYears": 59
+        },
+        "formatted": {
+          "display": "42.6M€ - 172.6M€",
+          "range": {
+            "min": 42602,
+            "max": 172619
+          },
+          "badge": {
+            "color": "orange",
+            "label": "Indicatif"
+          },
+          "method": "capital",
+          "tooltip": "Capital: 18442K€\nMultiple secteur (commerce): 2x-5x capital\nAncienneté: 59 ans (×1.00-×1.20)\nLocalisation: NOISY-LE-GRAND (×1.10-×1.30)\nCapital: 18442K€ (×1.05-×1.20)"
+        }
+      },
+      "interestScore": {
+        "raw": {
+          "score": 60,
+          "level": "high",
+          "levelLabel": "Élevé",
+          "levelColor": "blue",
+          "factors": {
+            "size": 0,
+            "maturity": 10,
+            "location": 15,
+            "capital": 10,
+            "sector": 10,
+            "valuation": 15
+          },
+          "details": [
+            "Entreprise ancienne (59 ans)",
+            "Localisation Île-de-France (très attractive)",
+            "Capital élevé (18442K€)",
+            "Secteur: Commerce",
+            "Valorisation très élevée (107.6M€)"
+          ],
+          "summary": "Entreprise intéressante avec de bons critères"
+        },
+        "formatted": {
+          "display": "60/100",
+          "score": 60,
+          "level": "high",
+          "levelLabel": "Élevé",
+          "badge": {
+            "bg": "bg-blue-500/20",
+            "text": "text-blue-400",
+            "border": "border-blue-500/50",
+            "label": "Élevé"
+          },
+          "summary": "Entreprise intéressante avec de bons critères",
+          "tooltip": "Entreprise ancienne (59 ans)\nLocalisation Île-de-France (très attractive)\nCapital élevé (18442K€)\nSecteur: Commerce\nValorisation très élevée (107.6M€)"
+        }
+      }
+    },
+    {
+      "siren": "884162397",
+      "nom_entreprise": "PACOSYL19",
+      "denomination": "PACOSYL19",
+      "forme_juridique": "SAS, société par actions simplifiée",
+      "code_naf": "47.52B",
+      "libelle_code_naf": "Commerce de détail de quincaillerie, peintures et verres en grandes surfaces (400 m² et plus)",
+      "domaine_activite": "Commerce de détail, à l'exception des automobiles et des motocycles",
+      "date_creation": "2020-06-04",
+      "capital": 1682224,
+      "siege": {
+        "siret": "88416239700027",
+        "siret_formate": "884 162 397 00027",
+        "nic": "00027",
+        "numero_voie": 22,
+        "indice_repetition": null,
+        "type_voie": "AVENUE",
+        "libelle_voie": "SIMON BOLIVAR",
+        "complement_adresse": "22-28",
+        "adresse_ligne_1": "22 AVENUE SIMON BOLIVAR",
+        "adresse_ligne_2": "22-28",
+        "code_postal": "75019",
+        "code_commune": "75119",
+        "ville": "PARIS",
+        "pays": "France",
+        "code_pays": "FR"
+      },
+      "statut_rcs": "Inscrit",
+      "valuation": {
+        "raw": {
+          "min": 3886,
+          "max": 14433,
+          "method": "capital",
+          "reliability": "low",
+          "details": [
+            "Capital: 1682K€",
+            "Multiple secteur (commerce): 2x-5x capital",
+            "Ancienneté: 5 ans (×1.00-×1.10)",
+            "Localisation: PARIS (×1.10-×1.30)",
+            "Capital: 1682K€ (×1.05-×1.20)"
+          ],
+          "availableData": {
+            "capital": true,
+            "effectif": false,
+            "secteur": true,
+            "dateCreation": true,
+            "localisation": true
+          },
+          "sector": "commerce",
+          "estimatedEmployees": null,
+          "ageYears": 5
+        },
+        "formatted": {
+          "display": "3.9M€ - 14.4M€",
+          "range": {
+            "min": 3886,
+            "max": 14433
+          },
+          "badge": {
+            "color": "orange",
+            "label": "Indicatif"
+          },
+          "method": "capital",
+          "tooltip": "Capital: 1682K€\nMultiple secteur (commerce): 2x-5x capital\nAncienneté: 5 ans (×1.00-×1.10)\nLocalisation: PARIS (×1.10-×1.30)\nCapital: 1682K€ (×1.05-×1.20)"
+        }
+      },
+      "interestScore": {
+        "raw": {
+          "score": 70,
+          "level": "high",
+          "levelLabel": "Élevé",
+          "levelColor": "blue",
+          "factors": {
+            "size": 0,
+            "maturity": 20,
+            "location": 15,
+            "capital": 10,
+            "sector": 10,
+            "valuation": 15
+          },
+          "details": [
+            "Entreprise mature (5 ans)",
+            "Localisation Île-de-France (très attractive)",
+            "Capital élevé (1682K€)",
+            "Secteur: Commerce",
+            "Valorisation très élevée (9.2M€)"
+          ],
+          "summary": "Entreprise intéressante avec de bons critères"
+        },
+        "formatted": {
+          "display": "70/100",
+          "score": 70,
+          "level": "high",
+          "levelLabel": "Élevé",
+          "badge": {
+            "bg": "bg-blue-500/20",
+            "text": "text-blue-400",
+            "border": "border-blue-500/50",
+            "label": "Élevé"
+          },
+          "summary": "Entreprise intéressante avec de bons critères",
+          "tooltip": "Entreprise mature (5 ans)\nLocalisation Île-de-France (très attractive)\nCapital élevé (1682K€)\nSecteur: Commerce\nValorisation très élevée (9.2M€)"
+        }
+      }
+    },
+    {
+      "siren": "384560942",
+      "nom_entreprise": "LEROY MERLIN FRANCE",
+      "denomination": "LEROY MERLIN FRANCE",
+      "forme_juridique": "SA à conseil d'administration (s.a.i.)",
+      "code_naf": "47.52B",
+      "libelle_code_naf": "Commerce de détail de quincaillerie, peintures et verres en grandes surfaces (400 m² et plus)",
+      "domaine_activite": "Commerce de détail, à l'exception des automobiles et des motocycles",
+      "date_creation": "1992-02-17",
+      "capital": 100000000,
+      "siege": {
+        "siret": "38456094200045",
+        "siret_formate": "384 560 942 00045",
+        "nic": "00045",
+        "numero_voie": null,
+        "indice_repetition": null,
+        "type_voie": "RUE",
+        "libelle_voie": "CHANZY",
+        "complement_adresse": null,
+        "adresse_ligne_1": "RUE CHANZY",
+        "adresse_ligne_2": null,
+        "code_postal": "59260",
+        "code_commune": "59346",
+        "ville": "LEZENNES",
+        "pays": "France",
+        "code_pays": "FR"
+      },
+      "statut_rcs": "Inscrit",
+      "valuation": {
+        "raw": {
+          "min": 189000,
+          "max": 756000,
+          "method": "capital",
+          "reliability": "low",
+          "details": [
+            "Capital: 100000K€",
+            "Multiple secteur (commerce): 2x-5x capital",
+            "Ancienneté: 33 ans (×1.00-×1.20)",
+            "Localisation: LEZENNES (×0.90-×1.05)",
+            "Capital: 100000K€ (×1.05-×1.20)"
+          ],
+          "availableData": {
+            "capital": true,
+            "effectif": false,
+            "secteur": true,
+            "dateCreation": true,
+            "localisation": true
+          },
+          "sector": "commerce",
+          "estimatedEmployees": null,
+          "ageYears": 33
+        },
+        "formatted": {
+          "display": "189.0M€ - 756.0M€",
+          "range": {
+            "min": 189000,
+            "max": 756000
+          },
+          "badge": {
+            "color": "orange",
+            "label": "Indicatif"
+          },
+          "method": "capital",
+          "tooltip": "Capital: 100000K€\nMultiple secteur (commerce): 2x-5x capital\nAncienneté: 33 ans (×1.00-×1.20)\nLocalisation: LEZENNES (×0.90-×1.05)\nCapital: 100000K€ (×1.05-×1.20)"
+        }
+      },
+      "interestScore": {
+        "raw": {
+          "score": 52,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "levelColor": "yellow",
+          "factors": {
+            "size": 0,
+            "maturity": 10,
+            "location": 7,
+            "capital": 10,
+            "sector": 10,
+            "valuation": 15
+          },
+          "details": [
+            "Entreprise ancienne (33 ans)",
+            "Localisation LEZENNES",
+            "Capital élevé (100000K€)",
+            "Secteur: Commerce",
+            "Valorisation très élevée (472.5M€)"
+          ],
+          "summary": "Entreprise moyennement attractive"
+        },
+        "formatted": {
+          "display": "52/100",
+          "score": 52,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "badge": {
+            "bg": "bg-yellow-500/20",
+            "text": "text-yellow-400",
+            "border": "border-yellow-500/50",
+            "label": "Moyen"
+          },
+          "summary": "Entreprise moyennement attractive",
+          "tooltip": "Entreprise ancienne (33 ans)\nLocalisation LEZENNES\nCapital élevé (100000K€)\nSecteur: Commerce\nValorisation très élevée (472.5M€)"
+        }
+      }
+    },
+    {
+      "siren": "312326978",
+      "nom_entreprise": "OUEST HARMONIE",
+      "denomination": "OUEST HARMONIE",
+      "forme_juridique": "SAS, société par actions simplifiée",
+      "code_naf": "47.52B",
+      "libelle_code_naf": "Commerce de détail de quincaillerie, peintures et verres en grandes surfaces (400 m² et plus)",
+      "domaine_activite": "Commerce de détail, à l'exception des automobiles et des motocycles",
+      "date_creation": "2002-08-01",
+      "capital": 182882.45,
+      "siege": {
+        "siret": "31232697800920",
+        "siret_formate": "312 326 978 00920",
+        "nic": "00920",
+        "numero_voie": 959,
+        "indice_repetition": null,
+        "type_voie": "AVENUE",
+        "libelle_voie": "SAINT MARTIN",
+        "complement_adresse": "2EME ETAGE",
+        "adresse_ligne_1": "959 AVENUE SAINT MARTIN",
+        "adresse_ligne_2": "2EME ETAGE",
+        "code_postal": "06250",
+        "code_commune": "06085",
+        "ville": "MOUGINS",
+        "pays": "France",
+        "code_pays": "FR"
+      },
+      "statut_rcs": "Inscrit",
+      "valuation": {
+        "raw": {
+          "min": 329,
+          "max": 1267,
+          "method": "capital",
+          "reliability": "low",
+          "details": [
+            "Capital: 183K€",
+            "Multiple secteur (commerce): 2x-5x capital",
+            "Ancienneté: 23 ans (×1.00-×1.20)",
+            "Localisation: MOUGINS (×0.90-×1.05)",
+            "Capital: 183K€ (×1.00-×1.10)"
+          ],
+          "availableData": {
+            "capital": true,
+            "effectif": false,
+            "secteur": true,
+            "dateCreation": true,
+            "localisation": true
+          },
+          "sector": "commerce",
+          "estimatedEmployees": null,
+          "ageYears": 23
+        },
+        "formatted": {
+          "display": "329K€ - 1.3M€",
+          "range": {
+            "min": 329,
+            "max": 1267
+          },
+          "badge": {
+            "color": "orange",
+            "label": "Indicatif"
+          },
+          "method": "capital",
+          "tooltip": "Capital: 183K€\nMultiple secteur (commerce): 2x-5x capital\nAncienneté: 23 ans (×1.00-×1.20)\nLocalisation: MOUGINS (×0.90-×1.05)\nCapital: 183K€ (×1.00-×1.10)"
+        }
+      },
+      "interestScore": {
+        "raw": {
+          "score": 50,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "levelColor": "yellow",
+          "factors": {
+            "size": 0,
+            "maturity": 15,
+            "location": 7,
+            "capital": 10,
+            "sector": 10,
+            "valuation": 8
+          },
+          "details": [
+            "Entreprise bien établie (23 ans)",
+            "Localisation MOUGINS",
+            "Capital élevé (183K€)",
+            "Secteur: Commerce",
+            "Valorisation moyenne (798K€)"
+          ],
+          "summary": "Entreprise moyennement attractive"
+        },
+        "formatted": {
+          "display": "50/100",
+          "score": 50,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "badge": {
+            "bg": "bg-yellow-500/20",
+            "text": "text-yellow-400",
+            "border": "border-yellow-500/50",
+            "label": "Moyen"
+          },
+          "summary": "Entreprise moyennement attractive",
+          "tooltip": "Entreprise bien établie (23 ans)\nLocalisation MOUGINS\nCapital élevé (183K€)\nSecteur: Commerce\nValorisation moyenne (798K€)"
+        }
+      }
+    },
+    {
+      "siren": "440708014",
+      "nom_entreprise": "BRICOLOREAU",
+      "denomination": "BRICOLOREAU",
+      "forme_juridique": "SAS, société par actions simplifiée",
+      "code_naf": "47.52B",
+      "libelle_code_naf": "Commerce de détail de quincaillerie, peintures et verres en grandes surfaces (400 m² et plus)",
+      "domaine_activite": "Commerce de détail, à l'exception des automobiles et des motocycles",
+      "date_creation": "2001-12-03",
+      "capital": 38130,
+      "siege": {
+        "siret": "44070801400046",
+        "siret_formate": "440 708 014 00046",
+        "nic": "00046",
+        "numero_voie": 10,
+        "indice_repetition": null,
+        "type_voie": "AVENUE",
+        "libelle_voie": "LARCHER",
+        "complement_adresse": null,
+        "adresse_ligne_1": "10 AVENUE LARCHER",
+        "adresse_ligne_2": null,
+        "code_postal": "78400",
+        "code_commune": "78146",
+        "ville": "CHATOU",
+        "pays": "France",
+        "code_pays": "FR"
+      },
+      "statut_rcs": "Inscrit",
+      "valuation": {
+        "raw": {
+          "min": 84,
+          "max": 312,
+          "method": "capital",
+          "reliability": "low",
+          "details": [
+            "Capital: 38K€",
+            "Multiple secteur (commerce): 2x-5x capital",
+            "Ancienneté: 23 ans (×1.00-×1.20)",
+            "Localisation: CHATOU (×1.10-×1.30)",
+            "Capital: 38K€ (×1.00-×1.05)"
+          ],
+          "availableData": {
+            "capital": true,
+            "effectif": false,
+            "secteur": true,
+            "dateCreation": true,
+            "localisation": true
+          },
+          "sector": "commerce",
+          "estimatedEmployees": null,
+          "ageYears": 23
+        },
+        "formatted": {
+          "display": "84K€ - 312K€",
+          "range": {
+            "min": 84,
+            "max": 312
+          },
+          "badge": {
+            "color": "orange",
+            "label": "Indicatif"
+          },
+          "method": "capital",
+          "tooltip": "Capital: 38K€\nMultiple secteur (commerce): 2x-5x capital\nAncienneté: 23 ans (×1.00-×1.20)\nLocalisation: CHATOU (×1.10-×1.30)\nCapital: 38K€ (×1.00-×1.05)"
+        }
+      },
+      "interestScore": {
+        "raw": {
+          "score": 48,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "levelColor": "yellow",
+          "factors": {
+            "size": 0,
+            "maturity": 15,
+            "location": 15,
+            "capital": 6,
+            "sector": 10,
+            "valuation": 2
+          },
+          "details": [
+            "Entreprise bien établie (23 ans)",
+            "Localisation Île-de-France (très attractive)",
+            "Capital moyen (38K€)",
+            "Secteur: Commerce",
+            "Valorisation très petite (198K€)"
+          ],
+          "summary": "Entreprise moyennement attractive"
+        },
+        "formatted": {
+          "display": "48/100",
+          "score": 48,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "badge": {
+            "bg": "bg-yellow-500/20",
+            "text": "text-yellow-400",
+            "border": "border-yellow-500/50",
+            "label": "Moyen"
+          },
+          "summary": "Entreprise moyennement attractive",
+          "tooltip": "Entreprise bien établie (23 ans)\nLocalisation Île-de-France (très attractive)\nCapital moyen (38K€)\nSecteur: Commerce\nValorisation très petite (198K€)"
+        }
+      }
+    },
+    {
+      "siren": "444609986",
+      "nom_entreprise": "MSB OBI",
+      "denomination": "MSB OBI",
+      "forme_juridique": "SASU, société par actions simplifiée unipersonnelle",
+      "code_naf": "47.52B",
+      "libelle_code_naf": "Commerce de détail de quincaillerie, peintures et verres en grandes surfaces (400 m² et plus)",
+      "domaine_activite": "Commerce de détail, à l'exception des automobiles et des motocycles",
+      "date_creation": "2002-12-17",
+      "capital": 25000000,
+      "siege": {
+        "siret": "44460998600500",
+        "siret_formate": "444 609 986 00500",
+        "nic": "00500",
+        "numero_voie": null,
+        "indice_repetition": null,
+        "type_voie": null,
+        "libelle_voie": "ZONE INDUSTRIELLE",
+        "complement_adresse": null,
+        "adresse_ligne_1": "ZONE INDUSTRIELLE",
+        "adresse_ligne_2": null,
+        "code_postal": "60840",
+        "code_commune": "60106",
+        "ville": "BREUIL LE SEC",
+        "pays": "France",
+        "code_pays": "FR"
+      },
+      "statut_rcs": "Inscrit",
+      "valuation": {
+        "raw": {
+          "min": 47250,
+          "max": 189000,
+          "method": "capital",
+          "reliability": "low",
+          "details": [
+            "Capital: 25000K€",
+            "Multiple secteur (commerce): 2x-5x capital",
+            "Ancienneté: 22 ans (×1.00-×1.20)",
+            "Localisation: BREUIL LE SEC (×0.90-×1.05)",
+            "Capital: 25000K€ (×1.05-×1.20)"
+          ],
+          "availableData": {
+            "capital": true,
+            "effectif": false,
+            "secteur": true,
+            "dateCreation": true,
+            "localisation": true
+          },
+          "sector": "commerce",
+          "estimatedEmployees": null,
+          "ageYears": 22
+        },
+        "formatted": {
+          "display": "47.3M€ - 189.0M€",
+          "range": {
+            "min": 47250,
+            "max": 189000
+          },
+          "badge": {
+            "color": "orange",
+            "label": "Indicatif"
+          },
+          "method": "capital",
+          "tooltip": "Capital: 25000K€\nMultiple secteur (commerce): 2x-5x capital\nAncienneté: 22 ans (×1.00-×1.20)\nLocalisation: BREUIL LE SEC (×0.90-×1.05)\nCapital: 25000K€ (×1.05-×1.20)"
+        }
+      },
+      "interestScore": {
+        "raw": {
+          "score": 57,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "levelColor": "yellow",
+          "factors": {
+            "size": 0,
+            "maturity": 15,
+            "location": 7,
+            "capital": 10,
+            "sector": 10,
+            "valuation": 15
+          },
+          "details": [
+            "Entreprise bien établie (22 ans)",
+            "Localisation BREUIL LE SEC",
+            "Capital élevé (25000K€)",
+            "Secteur: Commerce",
+            "Valorisation très élevée (118.1M€)"
+          ],
+          "summary": "Entreprise moyennement attractive"
+        },
+        "formatted": {
+          "display": "57/100",
+          "score": 57,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "badge": {
+            "bg": "bg-yellow-500/20",
+            "text": "text-yellow-400",
+            "border": "border-yellow-500/50",
+            "label": "Moyen"
+          },
+          "summary": "Entreprise moyennement attractive",
+          "tooltip": "Entreprise bien établie (22 ans)\nLocalisation BREUIL LE SEC\nCapital élevé (25000K€)\nSecteur: Commerce\nValorisation très élevée (118.1M€)"
+        }
+      }
+    },
+    {
+      "siren": "328712021",
+      "nom_entreprise": "BAIKAL",
+      "denomination": "BAIKAL",
+      "forme_juridique": "SAS, société par actions simplifiée",
+      "code_naf": "47.52B",
+      "libelle_code_naf": "Commerce de détail de quincaillerie, peintures et verres en grandes surfaces (400 m² et plus)",
+      "domaine_activite": "Commerce de détail, à l'exception des automobiles et des motocycles",
+      "date_creation": "1983-10-11",
+      "capital": 45734.71,
+      "siege": {
+        "siret": "32871202100067",
+        "siret_formate": "328 712 021 00067",
+        "nic": "00067",
+        "numero_voie": null,
+        "indice_repetition": null,
+        "type_voie": "RUE",
+        "libelle_voie": "DE LA BRIQUETERIE",
+        "complement_adresse": null,
+        "adresse_ligne_1": "RUE DE LA BRIQUETERIE",
+        "adresse_ligne_2": null,
+        "code_postal": "76400",
+        "code_commune": "76600",
+        "ville": "SAINT-LEONARD",
+        "pays": "France",
+        "code_pays": "FR"
+      },
+      "statut_rcs": "Inscrit",
+      "valuation": {
+        "raw": {
+          "min": 82,
+          "max": 303,
+          "method": "capital",
+          "reliability": "low",
+          "details": [
+            "Capital: 46K€",
+            "Multiple secteur (commerce): 2x-5x capital",
+            "Ancienneté: 42 ans (×1.00-×1.20)",
+            "Localisation: SAINT-LEONARD (×0.90-×1.05)",
+            "Capital: 46K€ (×1.00-×1.05)"
+          ],
+          "availableData": {
+            "capital": true,
+            "effectif": false,
+            "secteur": true,
+            "dateCreation": true,
+            "localisation": true
+          },
+          "sector": "commerce",
+          "estimatedEmployees": null,
+          "ageYears": 42
+        },
+        "formatted": {
+          "display": "82K€ - 303K€",
+          "range": {
+            "min": 82,
+            "max": 303
+          },
+          "badge": {
+            "color": "orange",
+            "label": "Indicatif"
+          },
+          "method": "capital",
+          "tooltip": "Capital: 46K€\nMultiple secteur (commerce): 2x-5x capital\nAncienneté: 42 ans (×1.00-×1.20)\nLocalisation: SAINT-LEONARD (×0.90-×1.05)\nCapital: 46K€ (×1.00-×1.05)"
+        }
+      },
+      "interestScore": {
+        "raw": {
+          "score": 35,
+          "level": "low",
+          "levelLabel": "Faible",
+          "levelColor": "orange",
+          "factors": {
+            "size": 0,
+            "maturity": 10,
+            "location": 7,
+            "capital": 6,
+            "sector": 10,
+            "valuation": 2
+          },
+          "details": [
+            "Entreprise ancienne (42 ans)",
+            "Localisation SAINT-LEONARD",
+            "Capital moyen (46K€)",
+            "Secteur: Commerce",
+            "Valorisation très petite (193K€)"
+          ],
+          "summary": "Entreprise avec potentiel limité"
+        },
+        "formatted": {
+          "display": "35/100",
+          "score": 35,
+          "level": "low",
+          "levelLabel": "Faible",
+          "badge": {
+            "bg": "bg-orange-500/20",
+            "text": "text-orange-400",
+            "border": "border-orange-500/50",
+            "label": "Faible"
+          },
+          "summary": "Entreprise avec potentiel limité",
+          "tooltip": "Entreprise ancienne (42 ans)\nLocalisation SAINT-LEONARD\nCapital moyen (46K€)\nSecteur: Commerce\nValorisation très petite (193K€)"
+        }
+      }
+    },
+    {
+      "siren": "420809923",
+      "nom_entreprise": "BRICOMAN",
+      "denomination": "BRICOMAN",
+      "forme_juridique": "SA à conseil d'administration (s.a.i.)",
+      "code_naf": "47.52B",
+      "libelle_code_naf": "Commerce de détail de quincaillerie, peintures et verres en grandes surfaces (400 m² et plus)",
+      "domaine_activite": "Commerce de détail, à l'exception des automobiles et des motocycles",
+      "date_creation": "1998-10-22",
+      "capital": 30849680,
+      "siege": {
+        "siret": "42080992300543",
+        "siret_formate": "420 809 923 00543",
+        "nic": "00543",
+        "numero_voie": 10,
+        "indice_repetition": null,
+        "type_voie": "RUE",
+        "libelle_voie": "DE L’HARMONIE",
+        "complement_adresse": null,
+        "adresse_ligne_1": "10 RUE DE L’HARMONIE",
+        "adresse_ligne_2": null,
+        "code_postal": "59493",
+        "code_commune": "59009",
+        "ville": "VILLENEUVE-D'ASCQ",
+        "pays": "France",
+        "code_pays": "FR"
+      },
+      "statut_rcs": "Inscrit",
+      "valuation": {
+        "raw": {
+          "min": 58306,
+          "max": 233224,
+          "method": "capital",
+          "reliability": "low",
+          "details": [
+            "Capital: 30850K€",
+            "Multiple secteur (commerce): 2x-5x capital",
+            "Ancienneté: 27 ans (×1.00-×1.20)",
+            "Localisation: VILLENEUVE-D'ASCQ (×0.90-×1.05)",
+            "Capital: 30850K€ (×1.05-×1.20)"
+          ],
+          "availableData": {
+            "capital": true,
+            "effectif": false,
+            "secteur": true,
+            "dateCreation": true,
+            "localisation": true
+          },
+          "sector": "commerce",
+          "estimatedEmployees": null,
+          "ageYears": 27
+        },
+        "formatted": {
+          "display": "58.3M€ - 233.2M€",
+          "range": {
+            "min": 58306,
+            "max": 233224
+          },
+          "badge": {
+            "color": "orange",
+            "label": "Indicatif"
+          },
+          "method": "capital",
+          "tooltip": "Capital: 30850K€\nMultiple secteur (commerce): 2x-5x capital\nAncienneté: 27 ans (×1.00-×1.20)\nLocalisation: VILLENEUVE-D'ASCQ (×0.90-×1.05)\nCapital: 30850K€ (×1.05-×1.20)"
+        }
+      },
+      "interestScore": {
+        "raw": {
+          "score": 52,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "levelColor": "yellow",
+          "factors": {
+            "size": 0,
+            "maturity": 10,
+            "location": 7,
+            "capital": 10,
+            "sector": 10,
+            "valuation": 15
+          },
+          "details": [
+            "Entreprise ancienne (27 ans)",
+            "Localisation VILLENEUVE-D'ASCQ",
+            "Capital élevé (30850K€)",
+            "Secteur: Commerce",
+            "Valorisation très élevée (145.8M€)"
+          ],
+          "summary": "Entreprise moyennement attractive"
+        },
+        "formatted": {
+          "display": "52/100",
+          "score": 52,
+          "level": "medium",
+          "levelLabel": "Moyen",
+          "badge": {
+            "bg": "bg-yellow-500/20",
+            "text": "text-yellow-400",
+            "border": "border-yellow-500/50",
+            "label": "Moyen"
+          },
+          "summary": "Entreprise moyennement attractive",
+          "tooltip": "Entreprise ancienne (27 ans)\nLocalisation VILLENEUVE-D'ASCQ\nCapital élevé (30850K€)\nSecteur: Commerce\nValorisation très élevée (145.8M€)"
+        }
+      }
+    }
+  ]
+}

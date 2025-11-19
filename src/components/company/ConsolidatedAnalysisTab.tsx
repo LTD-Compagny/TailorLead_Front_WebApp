@@ -1,273 +1,224 @@
+import type { CompanyAnalysisData } from '../../data/loadData'
+
 interface ConsolidatedAnalysisTabProps {
   siren: string
+  companyData: CompanyAnalysisData
 }
 
-interface RiskIndicator {
-  category: string
-  score: number
-  status: 'Low' | 'Medium' | 'High'
-  details: string
-}
+export default function ConsolidatedAnalysisTab({ siren: _siren, companyData }: ConsolidatedAnalysisTabProps) {
+  const valuationIA = companyData.valuation_ia
+  const analyseGlobale = companyData.analyse_globale_ia
 
-interface GrowthSignal {
-  indicator: string
-  trend: 'Positive' | 'Neutral' | 'Negative'
-  value: string
-  commentary: string
-}
-
-interface AcquisitionSignal {
-  signal: string
-  strength: 'Strong' | 'Moderate' | 'Weak'
-  lastDetected: string
-}
-
-// Mock data
-const mockRiskIndicators: RiskIndicator[] = [
-  {
-    category: 'Financial Health',
-    score: 85,
-    status: 'Low',
-    details: 'Strong balance sheet, healthy cash flow, low debt ratio',
-  },
-  {
-    category: 'Market Position',
-    score: 92,
-    status: 'Low',
-    details: 'Market leader with sustained competitive advantage',
-  },
-  {
-    category: 'Regulatory Compliance',
-    score: 78,
-    status: 'Low',
-    details: 'No recent compliance issues, strong governance',
-  },
-  {
-    category: 'Operational Risk',
-    score: 65,
-    status: 'Medium',
-    details: 'Supply chain exposure, geographic concentration',
-  },
-]
-
-const mockGrowthSignals: GrowthSignal[] = [
-  {
-    indicator: 'Revenue Growth',
-    trend: 'Positive',
-    value: '+4.97% YoY',
-    commentary: 'Consistent growth driven by data center and sustainability segments',
-  },
-  {
-    indicator: 'Market Expansion',
-    trend: 'Positive',
-    value: '3 new markets',
-    commentary: 'Recent entry into Southeast Asia and Latin America',
-  },
-  {
-    indicator: 'R&D Investment',
-    trend: 'Positive',
-    value: '€1.8B (5% of revenue)',
-    commentary: 'Increased focus on AI and IoT solutions',
-  },
-  {
-    indicator: 'Employee Headcount',
-    trend: 'Neutral',
-    value: '+2.3%',
-    commentary: 'Steady hiring with focus on digital talent',
-  },
-]
-
-const mockAcquisitionSignals: AcquisitionSignal[] = [
-  {
-    signal: 'High acquisition activity (3 deals in 18 months)',
-    strength: 'Strong',
-    lastDetected: '2024-03-20',
-  },
-  {
-    signal: 'Increased cash reserves',
-    strength: 'Moderate',
-    lastDetected: '2024-02-28',
-  },
-  {
-    signal: 'Strategic partnership announcements',
-    strength: 'Moderate',
-    lastDetected: '2024-03-10',
-  },
-  {
-    signal: 'Board changes focused on M&A expertise',
-    strength: 'Weak',
-    lastDetected: '2024-01-15',
-  },
-]
-
-const mockManagementChanges = [
-  {
-    date: '2024-01-20',
-    change: 'CFO Appointment',
-    person: 'Hilary Maxson',
-    impact: 'Positive',
-  },
-  {
-    date: '2023-11-05',
-    change: 'Board Member Addition',
-    person: 'Linda Fayne Levinson',
-    impact: 'Neutral',
-  },
-]
-
-export default function ConsolidatedAnalysisTab({ siren: _siren }: ConsolidatedAnalysisTabProps) {
-  const globalRiskScore = Math.round(
-    mockRiskIndicators.reduce((sum, r) => sum + r.score, 0) / mockRiskIndicators.length
-  )
-
-  const getRiskColor = (status: string) => {
-    const colors = {
-      Low: 'text-green-600',
-      Medium: 'text-yellow-600',
-      High: 'text-red-600',
+  // Extraire les sections du rapport
+  const extractSections = (report: string) => {
+    const sections: {
+      summary?: string
+      pointsForts: string[]
+      pointsFaibles: string[]
+      opportunites: string[]
+      risques: string[]
+    } = {
+      pointsForts: [],
+      pointsFaibles: [],
+      opportunites: [],
+      risques: [],
     }
-    return colors[status as keyof typeof colors] || colors.Medium
+
+    // Extraire le résumé (premier paragraphe)
+    const paragraphs = report.split('\n\n')
+    if (paragraphs.length > 0) {
+      sections.summary = paragraphs[0].substring(0, 400)
+    }
+
+    // Chercher les sections structurées
+    const lines = report.split('\n')
+    let currentSection: 'pointsForts' | 'pointsFaibles' | 'opportunites' | 'risques' | null = null
+
+    lines.forEach((line: string) => {
+      const lowerLine = line.toLowerCase()
+      if (lowerLine.includes('points forts') || lowerLine.includes('forces')) {
+        currentSection = 'pointsForts'
+      } else if (lowerLine.includes('points faibles') || lowerLine.includes('faiblesses')) {
+        currentSection = 'pointsFaibles'
+      } else if (lowerLine.includes('opportunités') || lowerLine.includes('opportunites')) {
+        currentSection = 'opportunites'
+      } else if (lowerLine.includes('risques') || lowerLine.includes('risque')) {
+        currentSection = 'risques'
+      } else if (currentSection && line.trim().startsWith('-')) {
+        sections[currentSection].push(line.trim().substring(1).trim())
+      } else if (currentSection && line.trim().startsWith('•')) {
+        sections[currentSection].push(line.trim().substring(1).trim())
+      }
+    })
+
+    // Fallback: extraire des phrases clés si pas de structure
+    if (sections.pointsForts.length === 0) {
+      const positiveKeywords = ['rentable', 'croissance', 'solide', 'fort', 'bon', 'positif', 'augmentation']
+      const sentences = report.split(/[.!?]\s+/)
+      sections.pointsForts = sentences
+        .filter((s: string) => positiveKeywords.some(kw => s.toLowerCase().includes(kw)))
+        .slice(0, 3)
+    }
+
+    if (sections.pointsFaibles.length === 0) {
+      const negativeKeywords = ['baisse', 'diminution', 'faible', 'risque', 'dépendance', 'vulnérable']
+      const sentences = report.split(/[.!?]\s+/)
+      sections.pointsFaibles = sentences
+        .filter((s: string) => negativeKeywords.some(kw => s.toLowerCase().includes(kw)))
+        .slice(0, 3)
+    }
+
+    return sections
   }
 
-  const getTrendColor = (trend: string) => {
-    const colors = {
-      Positive: 'text-green-600',
-      Neutral: 'text-gray-600',
-      Negative: 'text-red-600',
+  const sections = analyseGlobale ? extractSections(analyseGlobale.report) : null
+
+  // Extraire la valorisation
+  const extractValuation = () => {
+    if (!valuationIA?.valuation) return null
+
+    // Chercher une fourchette de valorisation dans le texte
+    const valuationText = valuationIA.valuation
+    const match = valuationText.match(/(\d+[.,]\d+)\s*M€\s*[-–]\s*(\d+[.,]\d+)\s*M€/i)
+    if (match) {
+      return `${match[1]} M€ – ${match[2]} M€`
     }
-    return colors[trend as keyof typeof colors] || colors.Neutral
+
+    // Fallback: prendre les premières lignes
+    return valuationText.split('\n')[0] || valuationText.substring(0, 200)
   }
 
-  const getStrengthColor = (strength: string) => {
-    const colors = {
-      Strong: 'bg-green-100 text-green-700 border-green-200',
-      Moderate: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-      Weak: 'bg-gray-100 text-gray-700 border-gray-200',
-    }
-    return colors[strength as keyof typeof colors] || colors.Weak
-  }
+  const valuationDisplay = extractValuation()
 
   return (
-    <div className="space-y-4">
-      {/* Global Risk Score */}
-      <div className="bg-white border border-[#E1E5EB] p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-bold text-[#1A1C20] mb-2 uppercase">Global Risk Score</h3>
-            <p className="text-sm text-gray-600">Consolidated assessment based on multiple indicators</p>
-          </div>
-          <div className="text-right">
-            <div className="text-5xl font-bold text-green-600">{globalRiskScore}</div>
-            <div className="text-sm text-gray-600 mt-1">/ 100 (Low Risk)</div>
-          </div>
-        </div>
-      </div>
+    <div className="space-y-4 p-4">
+      {/* Bloc 1: Résumé IA global */}
+      {sections?.summary && (
+        <section className="border border-[#E1E5EB] bg-white p-4 space-y-2">
+          <h2 className="text-sm font-semibold text-[#1A1C20] uppercase tracking-wide">
+            Synthèse IA globale
+          </h2>
+          <p className="text-xs text-[#4B4F5C] leading-relaxed">{sections.summary}</p>
+        </section>
+      )}
 
-      {/* Risk Indicators */}
-      <div className="bg-white border border-[#E1E5EB]">
-        <div className="px-4 py-3 border-b border-[#E1E5EB]">
-          <h3 className="text-sm font-bold text-[#1A1C20] uppercase">Risk Breakdown</h3>
-        </div>
-        <div className="p-4 space-y-4">
-          {mockRiskIndicators.map((risk, index) => (
-            <div key={index} className="border border-[#E1E5EB] p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-bold text-[#1A1C20]">{risk.category}</span>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold text-[#1A1C20]">{risk.score}/100</span>
-                  <span className={`text-sm font-bold ${getRiskColor(risk.status)}`}>{risk.status} Risk</span>
-                </div>
-              </div>
-              <p className="text-sm text-gray-600">{risk.details}</p>
-              <div className="mt-2 h-2 bg-[#F5F7FA] border border-[#E1E5EB]">
-                <div
-                  className="h-full bg-green-600"
-                  style={{ width: `${risk.score}%` }}
-                />
+      {/* Bloc 2: Points forts / Points faibles */}
+      {(sections?.pointsForts.length > 0 || sections?.pointsFaibles.length > 0) && (
+        <section className="grid grid-cols-2 gap-4">
+          <div className="border border-[#E1E5EB] bg-white p-4">
+            <h3 className="text-xs font-semibold text-[#1A1C20] mb-2 uppercase">Points forts</h3>
+            {sections.pointsForts.length > 0 ? (
+              <ul className="text-xs text-[#4B4F5C] space-y-1 list-disc list-inside">
+                {sections.pointsForts.map((point: string, index: number) => (
+                  <li key={index}>{point}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-[#4B4F5C]">Aucun point fort identifié</p>
+            )}
+          </div>
+          <div className="border border-[#E1E5EB] bg-white p-4">
+            <h3 className="text-xs font-semibold text-[#1A1C20] mb-2 uppercase">Points faibles</h3>
+            {sections.pointsFaibles.length > 0 ? (
+              <ul className="text-xs text-[#4B4F5C] space-y-1 list-disc list-inside">
+                {sections.pointsFaibles.map((point: string, index: number) => (
+                  <li key={index}>{point}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-[#4B4F5C]">Aucun point faible identifié</p>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Bloc 3: Opportunités / Risques */}
+      {(sections?.opportunites.length > 0 || sections?.risques.length > 0) && (
+        <section className="grid grid-cols-2 gap-4">
+          <div className="border border-[#E1E5EB] bg-white p-4">
+            <h3 className="text-xs font-semibold text-[#1A1C20] mb-2 uppercase">Opportunités</h3>
+            {sections.opportunites.length > 0 ? (
+              <ul className="text-xs text-[#4B4F5C] space-y-1 list-disc list-inside">
+                {sections.opportunites.map((opp: string, index: number) => (
+                  <li key={index}>{opp}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-[#4B4F5C]">Aucune opportunité identifiée</p>
+            )}
+          </div>
+          <div className="border border-[#E1E5EB] bg-white p-4">
+            <h3 className="text-xs font-semibold text-[#1A1C20] mb-2 uppercase">Risques</h3>
+            {sections.risques.length > 0 ? (
+              <ul className="text-xs text-[#4B4F5C] space-y-1 list-disc list-inside">
+                {sections.risques.map((risque: string, index: number) => (
+                  <li key={index}>{risque}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-[#4B4F5C]">Aucun risque identifié</p>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Bloc 4: Triggers & signaux */}
+      {analyseGlobale && (
+        <section className="border border-[#E1E5EB] bg-white p-4">
+          <h2 className="text-sm font-semibold text-[#1A1C20] uppercase tracking-wide mb-4">
+            Triggers & signaux
+          </h2>
+          <div className="space-y-2">
+            {/* Extraire les signaux du rapport */}
+            <div className="text-xs text-[#4B4F5C]">
+              {analyseGlobale.report.includes('Changement') && (
+                <div className="mb-2">• Changements de dirigeants récents</div>
+              )}
+              {analyseGlobale.report.includes('augmentation') && (
+                <div className="mb-2">• Augmentation de capital</div>
+              )}
+              {analyseGlobale.report.includes('acquisition') && (
+                <div className="mb-2">• Activité d'acquisition</div>
+              )}
+              {analyseGlobale.report.includes('croissance') && (
+                <div className="mb-2">• Signaux de croissance</div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Bloc 5: Valorisation IA */}
+      {valuationDisplay && (
+        <section className="border border-[#E1E5EB] bg-white p-4">
+          <h2 className="text-sm font-semibold text-[#1A1C20] uppercase tracking-wide mb-2">
+            Valorisation IA estimée
+          </h2>
+          <p className="text-base font-semibold text-[#1A1C20] mb-2">{valuationDisplay}</p>
+          <p className="text-[11px] text-[#4B4F5C]">
+            Fourchette indicative basée sur effectifs, secteur, capital, localisation, etc.
+          </p>
+          {valuationIA?.metadata && (
+            <div className="mt-3 pt-3 border-t border-[#E1E5EB]">
+              <div className="text-[10px] text-[#4B4F5C]">
+                Analyse effectuée avec {valuationIA.metadata.model} en {valuationIA.metadata.analysis_time_seconds}s
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+          )}
+        </section>
+      )}
 
-      {/* Growth Indicators */}
-      <div className="bg-white border border-[#E1E5EB]">
-        <div className="px-4 py-3 border-b border-[#E1E5EB]">
-          <h3 className="text-sm font-bold text-[#1A1C20] uppercase">Growth Indicators</h3>
-        </div>
-        <table className="w-full">
-          <thead className="bg-[#F5F7FA]">
-            <tr className="border-b border-[#E1E5EB]">
-              <th className="text-left text-xs font-bold text-gray-600 uppercase px-4 py-3">Indicator</th>
-              <th className="text-left text-xs font-bold text-gray-600 uppercase px-4 py-3">Trend</th>
-              <th className="text-left text-xs font-bold text-gray-600 uppercase px-4 py-3">Value</th>
-              <th className="text-left text-xs font-bold text-gray-600 uppercase px-4 py-3">Commentary</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mockGrowthSignals.map((signal, index) => (
-              <tr key={index} className="border-b border-[#E1E5EB] hover:bg-[#F5F7FA]">
-                <td className="px-4 py-3 text-sm font-medium text-[#1A1C20]">{signal.indicator}</td>
-                <td className="px-4 py-3">
-                  <span className={`text-sm font-bold ${getTrendColor(signal.trend)}`}>{signal.trend}</span>
-                </td>
-                <td className="px-4 py-3 text-sm font-bold text-[#1A1C20]">{signal.value}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{signal.commentary}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Acquisition Signals */}
-      <div className="bg-white border border-[#E1E5EB]">
-        <div className="px-4 py-3 border-b border-[#E1E5EB]">
-          <h3 className="text-sm font-bold text-[#1A1C20] uppercase">Acquisition Signals</h3>
-        </div>
-        <div className="p-4 space-y-3">
-          {mockAcquisitionSignals.map((signal, index) => (
-            <div key={index} className="flex items-center justify-between border border-[#E1E5EB] p-3">
-              <span className="text-sm text-[#1A1C20]">{signal.signal}</span>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-600">{signal.lastDetected}</span>
-                <span className={`inline-block px-2 py-1 text-xs font-medium border ${getStrengthColor(signal.strength)}`}>
-                  {signal.strength}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Management Changes */}
-      <div className="bg-white border border-[#E1E5EB]">
-        <div className="px-4 py-3 border-b border-[#E1E5EB]">
-          <h3 className="text-sm font-bold text-[#1A1C20] uppercase">Recent Management Changes</h3>
-        </div>
-        <table className="w-full">
-          <thead className="bg-[#F5F7FA]">
-            <tr className="border-b border-[#E1E5EB]">
-              <th className="text-left text-xs font-bold text-gray-600 uppercase px-4 py-3">Date</th>
-              <th className="text-left text-xs font-bold text-gray-600 uppercase px-4 py-3">Change Type</th>
-              <th className="text-left text-xs font-bold text-gray-600 uppercase px-4 py-3">Person</th>
-              <th className="text-left text-xs font-bold text-gray-600 uppercase px-4 py-3">Impact</th>
-            </tr>
-          </thead>
-          <tbody>
-            {mockManagementChanges.map((change, index) => (
-              <tr key={index} className="border-b border-[#E1E5EB] hover:bg-[#F5F7FA]">
-                <td className="px-4 py-3 text-sm text-gray-600">{change.date}</td>
-                <td className="px-4 py-3 text-sm font-medium text-[#1A1C20]">{change.change}</td>
-                <td className="px-4 py-3 text-sm text-gray-600">{change.person}</td>
-                <td className="px-4 py-3">
-                  <span className={`text-sm font-bold ${getTrendColor(change.impact)}`}>{change.impact}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Rapport complet (optionnel, en bas) */}
+      {analyseGlobale && (
+        <section className="border border-[#E1E5EB] bg-white p-4">
+          <h2 className="text-sm font-semibold text-[#1A1C20] uppercase tracking-wide mb-4">
+            Rapport complet
+          </h2>
+          <div className="text-xs text-[#4B4F5C] leading-relaxed whitespace-pre-line max-h-[400px] overflow-y-auto">
+            {analyseGlobale.report}
+          </div>
+        </section>
+      )}
     </div>
   )
 }
-

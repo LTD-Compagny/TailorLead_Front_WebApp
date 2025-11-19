@@ -1,100 +1,120 @@
 import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 
-interface CompanyResult {
-  siren: string
-  name: string
-  sector: string
-  naf: string
-  bodaccEvent: string
-  pappersInfo: string
-  cfnewsEvent: string
-  score: number
+interface NavGroup {
+  title: string
+  items: Array<{
+    label: string
+    path: string
+  }>
 }
+
+const navGroups: NavGroup[] = [
+  {
+    title: 'Mes Recherches',
+    items: [
+      { label: 'Recherche Globale', path: '/results' },
+      { label: 'Analyse Entreprise', path: '/company' },
+    ],
+  },
+  {
+    title: 'Mes Surveillances',
+    items: [
+      { label: 'Actualité', path: '/surveillance/actualite' },
+      { label: 'Surveillance', path: '/surveillance' },
+    ],
+  },
+  {
+    title: 'Mes Sauvegardes',
+    items: [
+      { label: 'Mes Recherches (Personne Morale)', path: '/sauvegardes/recherches' },
+      { label: 'Mes Listings (Personne Physique)', path: '/sauvegardes/listings' },
+    ],
+  },
+  {
+    title: 'Mon compte',
+    items: [
+      { label: 'Mes Réglages', path: '/compte/reglages' },
+      { label: 'Mon abonnement', path: '/compte/abonnement' },
+    ],
+  },
+]
 
 interface FiltersSidebarProps {
-  results: CompanyResult[]
-  onFilter: (filtered: CompanyResult[]) => void
+  isCollapsed: boolean
+  onToggle: () => void
 }
 
-export default function FiltersSidebar({ results, onFilter }: FiltersSidebarProps) {
-  const [minScore, setMinScore] = useState<number>(0)
-  const [selectedSector, setSelectedSector] = useState<string>('all')
+export default function FiltersSidebar({ isCollapsed, onToggle }: FiltersSidebarProps) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [credits] = useState<number>(1250)
 
-  const sectors = Array.from(new Set(results.map((r) => r.sector)))
-
-  const handleScoreChange = (value: number) => {
-    setMinScore(value)
-    const filtered = results.filter((r) => r.score >= value)
-    if (selectedSector !== 'all') {
-      const sectorFiltered = filtered.filter((r) => r.sector === selectedSector)
-      onFilter(sectorFiltered)
-    } else {
-      onFilter(filtered)
-    }
-  }
-
-  const handleSectorChange = (sector: string) => {
-    setSelectedSector(sector)
-    let filtered = results.filter((r) => r.score >= minScore)
-    if (sector !== 'all') {
-      filtered = filtered.filter((r) => r.sector === sector)
-    }
-    onFilter(filtered)
+  if (isCollapsed) {
+    return (
+      <button
+        onClick={onToggle}
+        className="w-8 h-screen bg-white border-r border-[#E1E5EB] flex items-center justify-center hover:bg-[#F5F7FA] transition-colors"
+      >
+        <span className="text-sm font-bold text-[#1A1C20]">▶</span>
+      </button>
+    )
   }
 
   return (
-    <div className="w-64 bg-white border-r border-[#E1E5EB] p-4">
-      <h2 className="text-sm font-bold text-[#1A1C20] mb-4 uppercase">Filtres</h2>
-
-      {/* Score Filter */}
-      <div className="mb-6">
-        <label className="block text-xs font-medium text-gray-600 mb-2 uppercase">
-          Score minimum
-        </label>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={minScore}
-          onChange={(e) => handleScoreChange(Number(e.target.value))}
-          className="w-full"
-        />
-        <div className="flex justify-between text-xs text-gray-600 mt-1">
-          <span>0</span>
-          <span className="font-bold text-[#1A1C20]">{minScore}</span>
-          <span>100</span>
+    <div className="w-64 h-screen bg-white border-r border-[#E1E5EB] flex flex-col">
+      {/* Credits Section */}
+      <div className="p-4 border-b border-[#E1E5EB]">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-xs font-bold text-gray-600 uppercase">Mes crédits TailorLead</h3>
+          <div className="flex items-center gap-2">
+            <button
+              className="w-6 h-6 border border-[#3A6FF7] bg-[#3A6FF7] text-white text-sm font-bold hover:bg-[#2D5AD6] transition-colors flex items-center justify-center"
+              onClick={() => {
+                // TODO: Ouvrir modal d'achat de crédits
+                console.log('Acheter des crédits')
+              }}
+            >
+              +
+            </button>
+            <button
+              onClick={onToggle}
+              className="w-6 h-6 border border-[#E1E5EB] bg-white text-[#1A1C20] text-sm font-bold hover:bg-[#F5F7FA] transition-colors flex items-center justify-center"
+            >
+              ◀
+            </button>
+          </div>
         </div>
+        <div className="text-2xl font-bold text-[#1A1C20]">{credits.toLocaleString('fr-FR')}</div>
       </div>
 
-      {/* Sector Filter */}
-      <div className="mb-6">
-        <label className="block text-xs font-medium text-gray-600 mb-2 uppercase">Secteur</label>
-        <select
-          value={selectedSector}
-          onChange={(e) => handleSectorChange(e.target.value)}
-          className="w-full border border-[#E1E5EB] px-3 py-2 text-sm bg-white text-[#1A1C20]"
-        >
-          <option value="all">Tous les secteurs</option>
-          {sectors.map((sector) => (
-            <option key={sector} value={sector}>
-              {sector}
-            </option>
-          ))}
-        </select>
+      {/* Navigation Groups */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        {navGroups.map((group, groupIndex) => (
+          <div key={groupIndex}>
+            <h4 className="text-xs font-bold text-gray-600 uppercase mb-2">{group.title}</h4>
+            <ul className="space-y-1">
+              {group.items.map((item, itemIndex) => (
+                <li key={itemIndex}>
+                  <button
+                    onClick={() => navigate(item.path)}
+                    className={`
+                      w-full text-left px-3 py-2 text-sm font-medium transition-colors
+                      ${
+                        location.pathname === item.path || location.pathname.startsWith(item.path + '/')
+                          ? 'bg-[#3A6FF7] text-white'
+                          : 'text-[#1A1C20] hover:bg-[#F5F7FA]'
+                      }
+                    `}
+                  >
+                    {item.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
-
-      {/* Reset Button */}
-      <button
-        onClick={() => {
-          setMinScore(0)
-          setSelectedSector('all')
-          onFilter(results)
-        }}
-        className="w-full px-4 py-2 border border-[#E1E5EB] bg-white text-[#1A1C20] text-sm font-medium hover:bg-[#F5F7FA] transition-colors"
-      >
-        Réinitialiser
-      </button>
     </div>
   )
 }
-

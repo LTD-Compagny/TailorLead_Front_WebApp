@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import TabsBar from '../components/company/TabsBar'
 import CompanyIdentityTab from '../components/company/CompanyIdentityTab'
@@ -7,18 +7,30 @@ import FinancialAnalysisTab from '../components/company/FinancialAnalysisTab'
 import ActivitySectorTab from '../components/company/ActivitySectorTab'
 import EventsNewsTab from '../components/company/EventsNewsTab'
 import ConsolidatedAnalysisTab from '../components/company/ConsolidatedAnalysisTab'
-
-// Mock company data
-const mockCompanyData = {
-  name: 'SCHNEIDER ELECTRIC SE',
-  siren: '542065479',
-  legalForm: 'SAS',
-}
+import { loadCompanyAnalysis, type CompanyAnalysisData } from '../data/loadData'
 
 export default function Company() {
   const { siren } = useParams<{ siren: string }>()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<string>('fiche')
+  const [companyData, setCompanyData] = useState<CompanyAnalysisData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (siren) {
+      const loadData = async () => {
+        try {
+          const data = await loadCompanyAnalysis(siren)
+          setCompanyData(data)
+          setLoading(false)
+        } catch (error) {
+          console.error('Error loading company data:', error)
+          setLoading(false)
+        }
+      }
+      loadData()
+    }
+  }, [siren])
 
   const tabs = [
     { id: 'fiche', label: 'FICHE ENTREPRISE' },
@@ -30,35 +42,57 @@ export default function Company() {
   ]
 
   const renderTabContent = () => {
+    if (!companyData) return null
+
     switch (activeTab) {
       case 'fiche':
-        return <CompanyIdentityTab siren={siren || ''} />
+        return <CompanyIdentityTab siren={siren || ''} companyData={companyData} />
       case 'actionnaires':
-        return <ShareholdersTab siren={siren || ''} />
+        return <ShareholdersTab siren={siren || ''} companyData={companyData} />
       case 'finance':
-        return <FinancialAnalysisTab siren={siren || ''} />
+        return <FinancialAnalysisTab siren={siren || ''} companyData={companyData} />
       case 'activite':
-        return <ActivitySectorTab siren={siren || ''} />
+        return <ActivitySectorTab siren={siren || ''} companyData={companyData} />
       case 'events':
-        return <EventsNewsTab siren={siren || ''} />
+        return <EventsNewsTab siren={siren || ''} companyData={companyData} />
       case 'analyse':
-        return <ConsolidatedAnalysisTab siren={siren || ''} />
+        return <ConsolidatedAnalysisTab siren={siren || ''} companyData={companyData} />
       default:
-        return <CompanyIdentityTab siren={siren || ''} />
+        return <CompanyIdentityTab siren={siren || ''} companyData={companyData} />
     }
   }
 
+  const pappersData = companyData?.data?.pappers
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+        <div className="text-sm text-gray-600">Chargement...</div>
+      </div>
+    )
+  }
+
+  if (!companyData) {
+    return (
+      <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+        <div className="text-sm text-red-600">Entreprise non trouvée</div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="flex flex-col h-screen bg-[#F5F7FA] overflow-hidden">
       {/* Fixed Header */}
-      <header className="bg-white border-b border-[#E1E5EB] sticky top-0 z-50">
+      <header className="bg-white border-b border-[#E1E5EB] flex-shrink-0">
         <div className="px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-[#1A1C20]">{mockCompanyData.name}</h1>
+            <h1 className="text-xl font-bold text-[#1A1C20]">
+              {pappersData?.nom_entreprise || pappersData?.denomination || companyData.entreprise.nom}
+            </h1>
             <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
-              <span>SIREN: {siren || mockCompanyData.siren}</span>
+              <span>SIREN: {siren || companyData.entreprise.siren}</span>
               <span>•</span>
-              <span>{mockCompanyData.legalForm}</span>
+              <span>{pappersData?.forme_juridique || 'N/A'}</span>
             </div>
           </div>
 
@@ -82,8 +116,10 @@ export default function Company() {
         <TabsBar tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
       </header>
 
-      {/* Main Content */}
-      <main className="p-6">{renderTabContent()}</main>
+      {/* Main Content - Scrollable */}
+      <main className="flex-1 overflow-y-auto bg-[#F5F7FA]">
+        <div className="p-6">{renderTabContent()}</div>
+      </main>
     </div>
   )
 }

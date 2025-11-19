@@ -92,5 +92,30 @@
   .animate-slide-left-fade-in {
     animation: slide-left-fade-in 0.6s ease-out forwards;
   }
+
+  /* Scrollbar personnalisée pour les suggestions (verticale) */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #E1E5EB;
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #C1C5CB;
+  }
+
+  /* Firefox */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #E1E5EB transparent;
+  }
 }
 

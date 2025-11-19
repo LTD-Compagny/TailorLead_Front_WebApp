@@ -1,4 +1,5 @@
 import type { CompanyAnalysisData } from '../../data/loadData'
+import EstablishmentsMap from './EstablishmentsMap'
 
 interface ActivitySectorTabProps {
   siren: string
@@ -120,6 +121,11 @@ export default function ActivitySectorTab({ siren: _siren, companyData }: Activi
               ))}
             </tbody>
           </table>
+
+          {/* Carte des établissements */}
+          <div className="mt-4">
+            <EstablishmentsMap establishments={pappers.etablissements} />
+          </div>
         </div>
       )}
     </div>

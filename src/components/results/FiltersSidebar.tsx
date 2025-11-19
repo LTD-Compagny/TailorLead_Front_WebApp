@@ -14,7 +14,7 @@ const navGroups: NavGroup[] = [
     title: 'Mes Recherches',
     items: [
       { label: 'Recherche Globale', path: '/results' },
-      { label: 'Analyse Entreprise', path: '/company' },
+      { label: 'Analyse Entreprise', path: '/analyse-entreprise' },
     ],
   },
   {
@@ -69,7 +69,7 @@ export default function FiltersSidebar({ isCollapsed, onToggle }: FiltersSidebar
           <h3 className="text-xs font-bold text-gray-600 uppercase">Mes crédits TailorLead</h3>
           <div className="flex items-center gap-2">
             <button
-              className="w-6 h-6 border border-[#3A6FF7] bg-[#3A6FF7] text-white text-sm font-bold hover:bg-[#2D5AD6] transition-colors flex items-center justify-center"
+              className="w-6 h-6 border border-[#0d1b2a] bg-[#0d1b2a] text-white text-sm font-bold hover:bg-[#1a2d42] transition-colors flex items-center justify-center"
               onClick={() => {
                 // TODO: Ouvrir modal d'achat de crédits
                 console.log('Acheter des crédits')
@@ -102,7 +102,7 @@ export default function FiltersSidebar({ isCollapsed, onToggle }: FiltersSidebar
                       w-full text-left px-3 py-2 text-sm font-medium transition-colors
                       ${
                         location.pathname === item.path || location.pathname.startsWith(item.path + '/')
-                          ? 'bg-[#3A6FF7] text-white'
+                          ? 'bg-[#0d1b2a] text-white'
                           : 'text-[#1A1C20] hover:bg-[#F5F7FA]'
                       }
                     `}

@@ -1,4 +1,5 @@
 import type { CompanyAnalysisData } from '../../data/loadData'
+import AIBadge from '../ia/AIBadge'
 
 interface ConsolidatedAnalysisTabProps {
   siren: string
@@ -95,9 +96,28 @@ export default function ConsolidatedAnalysisTab({ siren: _siren, companyData }: 
       {/* Bloc 1: Résumé IA global */}
       {sections?.summary && (
         <section className="border border-[#E1E5EB] bg-white p-4 space-y-2">
-          <h2 className="text-sm font-semibold text-[#1A1C20] uppercase tracking-wide">
-            Synthèse IA globale
-          </h2>
+          <AIBadge 
+            className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#3A6FF7]/20 bg-[#0d1b2a] backdrop-blur-md mb-2"
+            networkSize="sm"
+            networkOpacity={0.3}
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="flex-shrink-0"
+            >
+              <path
+                d="M6 0L7.5 4.5L12 6L7.5 7.5L6 12L4.5 7.5L0 6L4.5 4.5L6 0Z"
+                fill="white"
+              />
+            </svg>
+            <span className="text-white text-xs font-semibold uppercase tracking-wide">
+              Synthèse IA globale
+            </span>
+          </AIBadge>
           <p className="text-xs text-[#4B4F5C] leading-relaxed">{sections.summary}</p>
         </section>
       )}
@@ -191,9 +211,28 @@ export default function ConsolidatedAnalysisTab({ siren: _siren, companyData }: 
       {/* Bloc 5: Valorisation IA */}
       {valuationDisplay && (
         <section className="border border-[#E1E5EB] bg-white p-4">
-          <h2 className="text-sm font-semibold text-[#1A1C20] uppercase tracking-wide mb-2">
-            Valorisation IA estimée
-          </h2>
+          <AIBadge 
+            className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#3A6FF7]/20 bg-[#0d1b2a] backdrop-blur-md mb-3"
+            networkSize="sm"
+            networkOpacity={0.3}
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="flex-shrink-0"
+            >
+              <path
+                d="M6 0L7.5 4.5L12 6L7.5 7.5L6 12L4.5 7.5L0 6L4.5 4.5L6 0Z"
+                fill="white"
+              />
+            </svg>
+            <span className="text-white text-xs font-semibold uppercase tracking-wide">
+              Valorisation IA estimée
+            </span>
+          </AIBadge>
           <p className="text-base font-semibold text-[#1A1C20] mb-2">{valuationDisplay}</p>
           <p className="text-[11px] text-[#4B4F5C]">
             Fourchette indicative basée sur effectifs, secteur, capital, localisation, etc.

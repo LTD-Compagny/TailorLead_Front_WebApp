@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import type { SearchResult } from '../../data/loadData'
+import AIBadge from '../ia/AIBadge'
 
 interface CompanyCardProps {
   company: SearchResult
@@ -9,19 +10,19 @@ export default function CompanyCard({ company }: CompanyCardProps) {
   const navigate = useNavigate()
 
   const getScoreBadgeClass = (badge: { bg: string; text: string; border: string; label: string }) => {
-    // Utiliser les classes Tailwind directement avec meilleur contraste
+    // Classes adaptées pour background sombre avec animation
     const level = badge.label.toLowerCase()
     if (level === 'élevé' || level === 'high') {
-      return 'bg-blue-100 text-blue-700 border-blue-300'
+      return 'text-blue-300 border-blue-400/30'
     }
     if (level === 'moyen' || level === 'medium') {
-      return 'bg-yellow-100 text-yellow-700 border-yellow-300'
+      return 'text-yellow-300 border-yellow-400/30'
     }
     if (level === 'faible' || level === 'low') {
-      return 'bg-orange-100 text-orange-700 border-orange-300'
+      return 'text-orange-300 border-orange-400/30'
     }
     // Fallback
-    return 'bg-gray-100 text-gray-700 border-gray-300'
+    return 'text-gray-300 border-gray-400/30'
   }
 
   const formatCapital = (capital: number) => {
@@ -41,11 +42,15 @@ export default function CompanyCard({ company }: CompanyCardProps) {
           <div className="flex items-center gap-4 mb-3 flex-wrap">
             <h3 className="text-lg font-bold text-[#1A1C20]">{company.nom_entreprise || company.denomination}</h3>
             <span className="text-sm text-gray-600">SIREN: {company.siren}</span>
-            <span
-              className={`inline-block px-2 py-1 text-xs font-bold border ${getScoreBadgeClass(company.interestScore.formatted.badge)}`}
+            <AIBadge
+              className={`inline-flex items-center px-2 py-1 text-xs font-bold border bg-[#0d1b2a] backdrop-blur-md ${getScoreBadgeClass(company.interestScore.formatted.badge)}`}
+              networkSize="sm"
+              networkOpacity={0.5}
             >
-              {company.interestScore.formatted.badge.label}: {company.interestScore.formatted.display}
-            </span>
+              <span>
+                {company.interestScore.formatted.badge.label}: {company.interestScore.formatted.display}
+              </span>
+            </AIBadge>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-3">
@@ -91,7 +96,7 @@ export default function CompanyCard({ company }: CompanyCardProps) {
 
         <button
           onClick={() => navigate(`/company/${company.siren}`)}
-          className="ml-4 px-4 py-2 border border-[#3A6FF7] bg-[#3A6FF7] text-white text-sm font-medium hover:bg-[#2D5AD6] transition-colors"
+          className="ml-4 px-4 py-2 border border-[#0d1b2a] bg-[#0d1b2a] text-white text-sm font-medium hover:bg-[#1a2d42] transition-colors"
         >
           Ouvrir
         </button>

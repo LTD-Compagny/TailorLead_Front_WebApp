@@ -111,9 +111,8 @@ export const loadCompanyAnalysis = async (_siren: string): Promise<CompanyAnalys
   }
 
   try {
-    // Le nom du fichier contient des caractères spéciaux, on utilise encodeURIComponent
-    const fileName = 'analyse_globale_calliope4m_887831725_2025-11-19 (1).json'
-    const response = await fetch(`/mock/${encodeURIComponent(fileName)}`)
+    // Charger le fichier d'analyse de CALLIOPE4M
+    const response = await fetch('/mock/analyse_globale_calliope4m_887831725.json')
     if (!response.ok) {
       throw new Error('Failed to load company analysis')
     }

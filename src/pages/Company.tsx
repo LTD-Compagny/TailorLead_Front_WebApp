@@ -106,7 +106,7 @@ export default function Company() {
             <button className="px-4 py-2 border border-[#E1E5EB] bg-white text-[#1A1C20] text-sm font-medium hover:bg-[#F5F7FA] transition-colors">
               Add to Listing
             </button>
-            <button className="px-4 py-2 border border-[#3A6FF7] bg-[#3A6FF7] text-white text-sm font-medium hover:bg-[#2D5AD6] transition-colors">
+            <button className="px-4 py-2 border border-[#0d1b2a] bg-[#0d1b2a] text-white text-sm font-medium hover:bg-[#1a2d42] transition-colors">
               Enable Surveillance
             </button>
           </div>

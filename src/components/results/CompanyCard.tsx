@@ -44,7 +44,7 @@ export default function CompanyCard({ company }: CompanyCardProps) {
             <span className="text-sm text-gray-600">SIREN: {company.siren}</span>
             <AIBadge
               className={`inline-flex items-center px-2 py-1 text-xs font-bold border bg-[#0d1b2a] backdrop-blur-md ${getScoreBadgeClass(company.interestScore.formatted.badge)}`}
-              networkSize="sm"
+              networkSize="xs"
               networkOpacity={0.5}
             >
               <span>

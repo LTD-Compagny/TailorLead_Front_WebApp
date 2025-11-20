@@ -6,7 +6,7 @@ export default function NewsHeaderIA() {
       {/* AI Badge avec contenu similaire à AISuggestions */}
       <AIBadge 
         className="flex items-center gap-1.5 px-2 py-1 border border-white/20 backdrop-blur-md"
-        networkSize="sm"
+        networkSize="xs"
         networkOpacity={0.4}
       >
         <div className="flex items-center gap-1.5">

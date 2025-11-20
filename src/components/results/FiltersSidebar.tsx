@@ -101,7 +101,15 @@ export default function FiltersSidebar({ isCollapsed, onToggle }: FiltersSidebar
                     className={`
                       w-full text-left px-3 py-2 text-sm font-medium transition-colors
                       ${
-                        location.pathname === item.path || location.pathname.startsWith(item.path + '/')
+                        (() => {
+                          // Match exact
+                          if (location.pathname === item.path) return true
+                          // Pour les sous-routes, vérifier que le pathname commence par le path + '/'
+                          // Cas spécial : /surveillance ne doit pas matcher /surveillance/actualite
+                          if (item.path === '/surveillance') return false
+                          // Pour les autres routes, permettre les sous-routes
+                          return location.pathname.startsWith(item.path + '/')
+                        })()
                           ? 'bg-[#0d1b2a] text-white'
                           : 'text-[#1A1C20] hover:bg-[#F5F7FA]'
                       }

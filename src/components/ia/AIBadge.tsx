@@ -4,7 +4,7 @@ import TailorIAIconMiniNetwork from './TailorIAIconMiniNetwork'
 interface AIBadgeProps {
   children: ReactNode
   className?: string
-  networkSize?: 'sm' | 'md' | 'lg'
+  networkSize?: 'xs' | 'sm' | 'md' | 'lg'
   networkOpacity?: number
 }
 
@@ -15,7 +15,7 @@ interface AIBadgeProps {
 export default function AIBadge({ 
   children, 
   className = '', 
-  networkSize = 'sm',
+  networkSize = 'xs',
   networkOpacity = 0.5 // Augmenté pour meilleure visibilité
 }: AIBadgeProps) {
   return (

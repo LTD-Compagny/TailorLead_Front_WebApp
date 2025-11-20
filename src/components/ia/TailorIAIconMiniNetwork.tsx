@@ -4,33 +4,58 @@ import { loadSlim } from 'tsparticles-slim'
 import type { Engine } from 'tsparticles-engine'
 
 interface TailorIAIconMiniNetworkProps {
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
   fill?: boolean // Si true, remplit tout l'espace disponible (pour badges)
 }
 
 const sizeConfig = {
+  xs: { 
+    container: 'w-6 h-6', 
+    particles: 12, // Moins de particules pour très petits badges
+    density: 100,
+    distance: 80, // Distance liens réduite pour petits espaces
+    linkWidth: 0.8, // Traits plus fins
+    particleSize: 1.5, // Points plus petits
+    particleOpacity: 0.5, // Légèrement plus visible
+    linkOpacity: 0.35, // Légèrement plus visible
+  },
   sm: { 
     container: 'w-10 h-10', 
-    particles: 40, // Paramètres de la landing page
+    particles: 20, // Réduit pour petits badges
     density: 160,
-    distance: 150, // Distance liens de la landing page
+    distance: 100, // Distance liens réduite
+    linkWidth: 0.9,
+    particleSize: 1.8,
+    particleOpacity: 0.45,
+    linkOpacity: 0.32,
   },
   md: { 
     container: 'w-14 h-14', 
-    particles: 40, // Paramètres de la landing page
+    particles: 30, // Réduit pour badges moyens
     density: 250,
-    distance: 150, // Distance liens de la landing page
+    distance: 120, // Distance liens légèrement réduite
+    linkWidth: 1,
+    particleSize: 2,
+    particleOpacity: 0.4,
+    linkOpacity: 0.3,
   },
   lg: { 
     container: 'w-20 h-20', 
     particles: 40, // Paramètres de la landing page
     density: 350,
     distance: 150, // Distance liens de la landing page
+    linkWidth: 1,
+    particleSize: 2,
+    particleOpacity: 0.4,
+    linkOpacity: 0.3,
   },
 }
 
 function TailorIAIconMiniNetworkComponent({ size = 'md', fill = false }: TailorIAIconMiniNetworkProps) {
   const config = sizeConfig[size]
+  
+  // Pour les très petits badges (xs), on désactive les emitters pour éviter la surcharge
+  const useEmitters = size !== 'xs'
 
   const particlesInit = useCallback(async (engine: Engine) => {
     await loadSlim(engine)
@@ -80,31 +105,31 @@ function TailorIAIconMiniNetworkComponent({ size = 'md', fill = false }: TailorI
               type: 'circle',
             },
             opacity: {
-              value: 0.4, // Opacité augmentée pour meilleure visibilité en arrière-plan
+              value: config.particleOpacity,
               random: false,
             },
             size: {
-              value: 2, // Taille points de la landing page
-              random: { enable: true, minimumValue: 1 }, // Random 1-2 comme landing page
+              value: config.particleSize,
+              random: size !== 'xs' ? { enable: true, minimumValue: config.particleSize * 0.5 } : false,
             },
             links: {
               enable: true,
-              distance: config.distance, // Distance liens de la landing page (150px)
+              distance: config.distance,
               color: '#6d8ab0', // Couleur légèrement plus claire pour meilleure visibilité
-              opacity: 0.3, // Opacité augmentée pour meilleure visibilité en arrière-plan
-              width: 1, // Épaisseur traits de la landing page (1px)
+              opacity: config.linkOpacity,
+              width: config.linkWidth,
               triangles: {
                 enable: false,
               },
             },
             move: {
               enable: true,
-              speed: 0.2, // EXACTEMENT comme PremiumNetwork
+              speed: size === 'xs' ? 0.15 : size === 'sm' ? 0.18 : 0.2, // Vitesse réduite pour petits badges
               direction: 'none',
-              random: false, // EXACTEMENT comme PremiumNetwork
+              random: false,
               straight: false,
               outModes: {
-                default: 'bounce', // bounce pour garder dans le conteneur (différent de 'out' mais nécessaire)
+                default: 'bounce', // bounce pour garder dans le conteneur
               },
               attract: {
                 enable: false,
@@ -134,8 +159,8 @@ function TailorIAIconMiniNetworkComponent({ size = 'md', fill = false }: TailorI
               },
             },
           },
-          // Emitters identiques à PremiumNetwork (même timing)
-          emitters: [
+          // Emitters identiques à PremiumNetwork (même timing) - désactivés pour xs
+          emitters: useEmitters ? [
             {
               direction: 'top',
               rate: {
@@ -328,7 +353,7 @@ function TailorIAIconMiniNetworkComponent({ size = 'md', fill = false }: TailorI
                 },
               },
             },
-          ],
+          ] : [],
           detectRetina: true,
         }}
       />

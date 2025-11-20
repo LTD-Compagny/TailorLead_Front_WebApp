@@ -71,7 +71,7 @@ export default function FinancialAnalysisTab({ siren: _siren, companyData }: Fin
         <section className="border border-[#E1E5EB] bg-white p-4 space-y-2">
           <AIBadge 
             className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#3A6FF7]/20 bg-[#0d1b2a] backdrop-blur-md mb-2"
-            networkSize="sm"
+            networkSize="xs"
             networkOpacity={0.3}
           >
             <svg

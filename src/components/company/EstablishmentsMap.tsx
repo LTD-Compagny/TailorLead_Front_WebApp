@@ -116,7 +116,7 @@ export default function EstablishmentsMap({ establishments }: EstablishmentsMapP
         
         <AIBadge 
           className="inline-flex items-center px-3 py-1 text-xs border backdrop-blur-md text-white border-white/20"
-          networkSize="sm"
+          networkSize="xs"
           networkOpacity={0.5}
         >
           💡 Cliquez sur un point pour plus d'infos

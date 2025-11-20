@@ -8,14 +8,10 @@ interface LinkPulse {
   linkIndex: number
   progress: number
   active: boolean
+  loopCount: number // Nombre de fois que le pulse a parcouru le lien
+  flashPhase: number // Phase du flash (0-1) pour l'effet éclair
 }
 
-interface PathPulse {
-  id: number
-  nodeIndex: number
-  progress: number
-  active: boolean
-}
 
 interface MajorBeamEffect {
   progress: number
@@ -50,16 +46,13 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const brainModeRef = useRef<BrainMode>('idle')
   const linkPulsesRef = useRef<LinkPulse[]>([])
-  const pathPulsesRef = useRef<PathPulse[]>([])
   const coreNodeIndicesRef = useRef<number[]>([])
   const majorBeamRef = useRef<MajorBeamEffect | null>(null)
   const nextIdRef = useRef(0)
   const animationFrameRef = useRef<number>()
   const nodesCacheRef = useRef<Array<{ x: number; y: number; links: Array<{ x: number; y: number }> }>>([])
   const lastLinkPulseTimeRef = useRef<number>(0)
-  const lastPathPulseTimeRef = useRef<number>(0)
   const searchModeStartRef = useRef<number>(0)
-  const recentlyUsedNodesRef = useRef<number[]>([]) // Pour éviter les paquets
 
   // Identifier les 4-6 core nodes UNE SEULE FOIS
   useEffect(() => {
@@ -134,9 +127,6 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
     // Retour au mode IDLE après la recherche (2s)
     setTimeout(() => {
       brainModeRef.current = 'idle'
-      // Nettoyer les PathPulses actifs
-      pathPulsesRef.current = []
-      recentlyUsedNodesRef.current = []
     }, 1000)
     
     console.log('⚡ SEARCH mode activated')
@@ -168,9 +158,7 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
   useEffect(() => {
     if (!isTyping && brainModeRef.current !== 'search') {
       linkPulsesRef.current = []
-      pathPulsesRef.current = []
       majorBeamRef.current = null
-      recentlyUsedNodesRef.current = []
     }
   }, [isTyping])
 
@@ -222,7 +210,10 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
       }
 
       if (now - lastLinkPulseTimeRef.current > linkPulseInterval) {
-        if (linkPulsesRef.current.filter(p => p.active).length < 40) {
+        // Augmenter le nombre max de pulses, surtout en mode typing
+        const maxPulses = mode === 'typing' ? 80 : 40
+        
+        if (linkPulsesRef.current.filter(p => p.active).length < maxPulses) {
           // Choisir un nœud aléatoire
           const randomNodeIndex = Math.floor(Math.random() * nodes.length)
           const node = nodes[randomNodeIndex]
@@ -237,6 +228,8 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
               linkIndex: randomLinkIndex,
               progress: 0,
               active: true,
+              loopCount: 0,
+              flashPhase: 0, // Commence avec un flash intense
             })
           }
         }
@@ -257,11 +250,29 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
           return false
         }
 
-        pulse.progress += 0.01
+        // Vitesse du pulse (plus rapide en mode typing)
+        const speed = mode === 'typing' ? 0.015 : 0.01
+        pulse.progress += speed
 
+        // Boucler le pulse au lieu de le supprimer (surtout en mode typing)
         if (pulse.progress >= 1) {
-          pulse.active = false
-          return false
+          if (mode === 'typing') {
+            // En mode typing, faire boucler le pulse plusieurs fois
+            pulse.loopCount++
+            pulse.progress = 0
+            pulse.flashPhase = 0 // Nouveau flash à chaque loop
+            // Continuer jusqu'à ce que l'utilisateur arrête de taper (géré par le mode)
+          } else {
+            // En mode idle/search, supprimer après quelques loops
+            if (pulse.loopCount >= 2) {
+              pulse.active = false
+              return false
+            } else {
+              pulse.loopCount++
+              pulse.progress = 0
+              pulse.flashPhase = 0
+            }
+          }
         }
 
         const link = node.links[pulse.linkIndex]
@@ -294,192 +305,37 @@ export default function BackgroundPulseLayer({ isTyping, promptRef }: Background
         const ux = dx / len
         const uy = dy / len
 
+        // Effet éclair (flash) : très brillant au début puis moins brillant
+        // flashPhase augmente avec le progress pour créer l'effet de fade
+        pulse.flashPhase = Math.min(1, pulse.progress * 2) // Flash rapide au début
+        
+        // Calcul de la luminosité : très brillant (1.0) au début, puis fade vers 0.4
+        const flashBrightness = mode === 'typing' 
+          ? 1.0 - (pulse.flashPhase * 0.6) // De 1.0 à 0.4 en mode typing
+          : 0.95 - (pulse.flashPhase * 0.5) // De 0.95 à 0.45 en mode idle
+        
         // Taille et luminosité basées sur le mode
-        let dashLength = 10
-        let brightness = 0.95
-        let shadowBlur = 25
+        let dashLength = mode === 'typing' ? 12 : 10
+        let shadowBlur = mode === 'typing' ? 35 : 25
 
         if (mode === 'search') {
-          dashLength = 12
-          brightness = 1
-          shadowBlur = 30
+          dashLength = 14
+          shadowBlur = 40
         }
 
         ctx.beginPath()
         ctx.moveTo(x, y)
         ctx.lineTo(x - ux * dashLength, y - uy * dashLength)
-        ctx.strokeStyle = `rgba(130,190,255,${brightness})`
-        ctx.lineWidth = 1.4
-        ctx.shadowBlur = shadowBlur
-        ctx.shadowColor = `rgba(130,190,255,${brightness})`
+        ctx.strokeStyle = `rgba(130,190,255,${flashBrightness})`
+        ctx.lineWidth = mode === 'typing' ? 2.0 : 1.4
+        ctx.shadowBlur = shadowBlur * flashBrightness
+        ctx.shadowColor = `rgba(130,190,255,${flashBrightness})`
         ctx.stroke()
         ctx.shadowBlur = 0
 
         return true
       })
 
-      // ═══════════════════════════════════════════════════════════
-      // 3. ÉMETTRE DES PATH PULSES (basé sur longueur de recherche en TYPING)
-      // ═══════════════════════════════════════════════════════════
-
-      if (mode === 'typing' && coreNodeIndicesRef.current.length > 0) {
-        // Récupérer la longueur du texte de recherche
-        const searchLength = window.searchInputLength || 0
-        
-        if (searchLength > 0) {
-          // Plus le texte est long, plus on émet de pulses et plus ils sont rapides
-          const baseInterval = 400 - (searchLength * 15)
-          const pathInterval = Math.max(80, baseInterval) + Math.random() * 50
-          
-          const maxPulses = Math.min(3 + Math.floor(searchLength / 3), 15)
-          
-          if (now - lastPathPulseTimeRef.current > pathInterval) {
-            if (pathPulsesRef.current.filter(p => p.active).length < maxPulses) {
-              // Choisir un nœud qui n'a PAS été utilisé récemment pour éviter les paquets
-              const availableNodes = coreNodeIndicesRef.current.filter(
-                idx => !recentlyUsedNodesRef.current.includes(idx)
-              )
-              
-              // Si tous les nœuds ont été utilisés récemment, réinitialiser
-              const nodesToChooseFrom = availableNodes.length > 0 
-                ? availableNodes 
-                : coreNodeIndicesRef.current
-              
-              const randomCoreIndex = nodesToChooseFrom[
-                Math.floor(Math.random() * nodesToChooseFrom.length)
-              ]
-              
-              // Ajouter à la liste des nœuds récemment utilisés
-              recentlyUsedNodesRef.current.push(randomCoreIndex)
-              
-              // Limiter la taille de l'historique à 3 nœuds
-              if (recentlyUsedNodesRef.current.length > 3) {
-                recentlyUsedNodesRef.current.shift()
-              }
-              
-              pathPulsesRef.current.push({
-                id: nextIdRef.current++,
-                nodeIndex: randomCoreIndex,
-                progress: 0,
-                active: true,
-              })
-            }
-            
-            lastPathPulseTimeRef.current = now
-          }
-        }
-      }
-      
-      // MODE SEARCH: émettre beaucoup de pulses (effet intensif)
-      if (mode === 'search' && coreNodeIndicesRef.current.length > 0) {
-        const searchElapsed = now - searchModeStartRef.current
-        
-        // Émettre pendant toute la durée du mode search (2 secondes)
-        if (searchElapsed < 2000) {
-          const pathInterval = 60 + Math.random() * 40 // Très rapide
-          
-          if (now - lastPathPulseTimeRef.current > pathInterval) {
-            const maxPulses = 25 // Beaucoup de pulses simultanés
-            
-            if (pathPulsesRef.current.filter(p => p.active).length < maxPulses) {
-              // Choisir un nœud différent
-              const availableNodes = coreNodeIndicesRef.current.filter(
-                idx => !recentlyUsedNodesRef.current.includes(idx)
-              )
-              
-              const nodesToChooseFrom = availableNodes.length > 0 
-                ? availableNodes 
-                : coreNodeIndicesRef.current
-              
-              const randomCoreIndex = nodesToChooseFrom[
-                Math.floor(Math.random() * nodesToChooseFrom.length)
-              ]
-              
-              recentlyUsedNodesRef.current.push(randomCoreIndex)
-              if (recentlyUsedNodesRef.current.length > 3) {
-                recentlyUsedNodesRef.current.shift()
-              }
-              
-              pathPulsesRef.current.push({
-                id: nextIdRef.current++,
-                nodeIndex: randomCoreIndex,
-                progress: 0,
-                active: true,
-              })
-            }
-            
-            lastPathPulseTimeRef.current = now
-          }
-        }
-      }
-
-      // ═══════════════════════════════════════════════════════════
-      // 4. DESSINER LES PATH PULSES (core nodes → prompt)
-      // ═══════════════════════════════════════════════════════════
-
-      pathPulsesRef.current = pathPulsesRef.current.filter(pulse => {
-        if (!pulse.active) return false
-
-        const node = nodes[pulse.nodeIndex]
-        if (!node || node.x === undefined || node.y === undefined) {
-          pulse.active = false
-          return false
-        }
-
-        // Vitesse basée sur la longueur du texte (plus long = plus rapide)
-        const searchLength = window.searchInputLength || 0
-        const speedMultiplier = mode === 'typing' ? Math.min(1 + searchLength / 20, 2.5) : 1
-        pulse.progress += 0.006 * speedMultiplier
-
-        if (pulse.progress >= 1) {
-          pulse.active = false
-          return false
-        }
-
-        // Calculer le point cible sur le prompt (utiliser position RÉELLE du nœud)
-        const startX = node.x
-        const startY = node.y
-        const target = getClosestPointOnRect(startX, startY, promptRect)
-        const endX = target.x
-        const endY = target.y
-
-        // Delta direction
-        const deltaX = endX - startX
-        const deltaY = endY - startY
-        
-        if (Math.hypot(deltaX, deltaY) === 0) {
-          pulse.active = false
-          return false
-        }
-
-        // Dessiner un segment représentant 20-25% du chemin total
-        const SEGMENT_LENGTH = 0.25
-        const oldProgress = Math.max(0, pulse.progress - SEGMENT_LENGTH)
-        const newProgress = pulse.progress
-
-        // Easing pour les deux positions
-        const oldEased = 1 - Math.pow(1 - oldProgress, 3)
-        const newEased = 1 - Math.pow(1 - newProgress, 3)
-
-        // Positions du segment
-        const oldX = startX + deltaX * oldEased
-        const oldY = startY + deltaY * oldEased
-        const newX = startX + deltaX * newEased
-        const newY = startY + deltaY * newEased
-
-        // Dessiner le segment de ligne
-        ctx.beginPath()
-        ctx.moveTo(oldX, oldY)
-        ctx.lineTo(newX, newY)
-        ctx.strokeStyle = 'rgba(120,200,255,0.95)'
-        ctx.lineWidth = 2
-        ctx.shadowBlur = 18
-        ctx.shadowColor = 'rgba(120,200,255,1)'
-        ctx.stroke()
-        ctx.shadowBlur = 0
-
-        return true
-      })
 
       // ═══════════════════════════════════════════════════════════
       // 5. BEAM PROGRESSIF (contour du prompt puis vertical)

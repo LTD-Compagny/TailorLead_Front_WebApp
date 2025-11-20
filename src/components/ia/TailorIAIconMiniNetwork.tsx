@@ -11,21 +11,21 @@ interface TailorIAIconMiniNetworkProps {
 const sizeConfig = {
   sm: { 
     container: 'w-10 h-10', 
-    particles: 6, // Divisé par 2 (était 12)
+    particles: 40, // Paramètres de la landing page
     density: 160,
-    distance: 20,
+    distance: 150, // Distance liens de la landing page
   },
   md: { 
     container: 'w-14 h-14', 
-    particles: 9, // Divisé par 2 (était 18)
+    particles: 40, // Paramètres de la landing page
     density: 250,
-    distance: 28,
+    distance: 150, // Distance liens de la landing page
   },
   lg: { 
     container: 'w-20 h-20', 
-    particles: 12, // Divisé par 2 (était 25, arrondi à 12)
+    particles: 40, // Paramètres de la landing page
     density: 350,
-    distance: 40,
+    distance: 150, // Distance liens de la landing page
   },
 }
 
@@ -74,25 +74,25 @@ function TailorIAIconMiniNetworkComponent({ size = 'md', fill = false }: TailorI
               },
             },
             color: {
-              value: '#8bb7ff',
+              value: '#6d8ab0', // Couleur légèrement plus claire pour meilleure visibilité
             },
             shape: {
               type: 'circle',
             },
             opacity: {
-              value: 0.95,
+              value: 0.4, // Opacité augmentée pour meilleure visibilité en arrière-plan
               random: false,
             },
             size: {
-              value: 2.4,
-              random: false,
+              value: 2, // Taille points de la landing page
+              random: { enable: true, minimumValue: 1 }, // Random 1-2 comme landing page
             },
             links: {
               enable: true,
-              distance: 50,
-              color: '#8bb7ff',
-              opacity: 0.45,
-              width: 1.1,
+              distance: config.distance, // Distance liens de la landing page (150px)
+              color: '#6d8ab0', // Couleur légèrement plus claire pour meilleure visibilité
+              opacity: 0.3, // Opacité augmentée pour meilleure visibilité en arrière-plan
+              width: 1, // Épaisseur traits de la landing page (1px)
               triangles: {
                 enable: false,
               },
@@ -117,7 +117,8 @@ function TailorIAIconMiniNetworkComponent({ size = 'md', fill = false }: TailorI
             detectsOn: 'parent',
             events: {
               onHover: {
-                enable: false,
+                enable: true, // Activé pour l'interactivité au survol
+                mode: 'grab', // Mode grab comme la landing page
               },
               onClick: {
                 enable: false,
@@ -126,9 +127,9 @@ function TailorIAIconMiniNetworkComponent({ size = 'md', fill = false }: TailorI
             },
             modes: {
               grab: {
-                distance: 140,
+                distance: 140, // Distance de grab comme la landing page
                 links: {
-                  opacity: 0.5,
+                  opacity: 0.5, // Opacité des liens au survol
                 },
               },
             },

@@ -21,7 +21,7 @@ export default function CompaniesList({ companies }: CompaniesListProps) {
 
   if (companies.length === 0) {
     return (
-      <div className="p-6 bg-white border border-[#E1E5EB] text-center">
+      <div className="p-6 bg-[#E8EBF0] border border-[#E1E5EB] text-center">
         <p className="text-sm text-[#4B4F5C]">Aucune entreprise trouvée.</p>
       </div>
     )
@@ -36,7 +36,7 @@ export default function CompaniesList({ companies }: CompaniesListProps) {
       {companies.map((company) => (
         <div
           key={company.siren}
-          className="bg-white border border-[#E1E5EB] p-4 hover:border-[#0d1b2a] transition-colors"
+          className="bg-[#E8EBF0] border border-[#E1E5EB] p-4 hover:border-[#0d1b2a] transition-colors"
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">

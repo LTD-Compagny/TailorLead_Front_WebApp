@@ -43,6 +43,15 @@ export default function Landing() {
         </p>
       </div>
 
+      {/* Bouton Connexion en haut à droite */}
+      <div className="absolute top-4 md:top-6 right-6 md:right-8 z-20">
+        <button
+          className="px-4 py-2 rounded-xl backdrop-blur-md bg-white/10 text-white text-xs font-medium hover:bg-white/20 border border-white/20 transition-all duration-150 shadow-2xl focus:outline-none"
+        >
+          Connexion
+        </button>
+      </div>
+
       {/* Contenu principal centré */}
       <div className="relative z-10 flex flex-col items-center justify-center h-screen px-4">
         {/* SearchBar + ExampleCarousel */}

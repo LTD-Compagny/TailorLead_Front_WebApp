@@ -73,8 +73,13 @@ const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(({ onTypingChange }, 
       window.triggerMajorPulse()
     }
 
-    // Rediriger vers la page des résultats
-    navigate('/results')
+    // Attendre que les traits bleus descendent (beam vertical)
+    setTimeout(() => {
+      // Scroll vers le haut pour une transition fluide
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      // Naviguer vers la page des résultats
+      navigate('/results')
+    }, 600) // 600ms pour laisser le temps au beam de descendre
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {

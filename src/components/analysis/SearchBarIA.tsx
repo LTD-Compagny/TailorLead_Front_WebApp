@@ -15,14 +15,7 @@ export default function SearchBarIA({ onSearch }: SearchBarIAProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex items-center gap-4 p-6 bg-white border border-[#E1E5EB]">
-      {/* Left side: IA Icon */}
-      <div className="flex-shrink-0">
-        <div className="w-14 h-14 bg-[#0d1b2a] flex items-center justify-center text-white font-bold text-lg">
-          IA
-        </div>
-      </div>
-
-      {/* Right side: Input */}
+      {/* Search Input - Now takes full width */}
       <input
         type="text"
         value={query}
@@ -31,7 +24,7 @@ export default function SearchBarIA({ onSearch }: SearchBarIAProps) {
         className="flex-1 px-4 py-3 border border-[#E1E5EB] bg-white text-[#1A1C20] text-sm focus:outline-none focus:border-[#0d1b2a] transition-colors"
       />
 
-      {/* Button */}
+      {/* Search Button */}
       <button
         type="submit"
         className="px-6 py-3 bg-[#0d1b2a] text-white text-sm font-medium hover:bg-[#1a2d42] transition-colors"

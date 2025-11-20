@@ -40,12 +40,7 @@ export default function CompaniesList({ companies }: CompaniesListProps) {
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                {/* Mini IA Badge */}
-                <div className="w-8 h-8 bg-[#0d1b2a] flex items-center justify-center text-white font-bold text-[10px]">
-                  IA
-                </div>
-
+              <div className="mb-2">
                 <h3 className="text-base font-bold text-[#1A1C20]">{company.nom}</h3>
               </div>
 

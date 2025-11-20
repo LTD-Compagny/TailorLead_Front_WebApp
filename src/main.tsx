@@ -5,6 +5,7 @@ import Landing from './pages/Landing.tsx'
 import Results from './pages/Results.tsx'
 import Company from './pages/Company.tsx'
 import AnalyseEntreprise from './pages/AnalyseEntreprise.tsx'
+import Actualites from './pages/Actualites.tsx'
 // import Test from './pages/Test.tsx'
 // import TestIAIcon from './pages/TestIAIcon.tsx'
 import TestMiniIA from './pages/TestMiniIA.tsx'
@@ -20,6 +21,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/results" element={<Results />} />
         <Route path="/company/:siren" element={<Company />} />
         <Route path="/analyse-entreprise" element={<AnalyseEntreprise />} />
+        <Route path="/actualites" element={<Actualites />} />
+        <Route path="/surveillance/actualite" element={<Actualites />} />
         {/* <Route path="/test" element={<Test />} /> */}
         {/* <Route path="/test-ia" element={<TestIAIcon />} /> */}
         <Route path="/test-mini-ia" element={<TestMiniIA />} />

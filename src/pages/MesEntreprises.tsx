@@ -248,6 +248,11 @@ export default function MesEntreprises() {
     return Math.round((filledFields / fields.length) * 100)
   }
 
+  // Filtrer les entreprises avec SIREN valide
+  const getValidEntreprises = (entreprises: Entreprise[]): Entreprise[] => {
+    return entreprises.filter(ent => ent.siren && ent.siren.trim() !== '')
+  }
+
   return (
     <div className="flex h-screen bg-[#F7F9FC]">
       {/* Sidebar */}
@@ -319,7 +324,7 @@ export default function MesEntreprises() {
                           {recherche.dateModification && (
                             <span>Modifiée le {new Date(recherche.dateModification).toLocaleDateString('fr-FR')}</span>
                           )}
-                          <span>{recherche.entreprises.length} entreprise{recherche.entreprises.length > 1 ? 's' : ''}</span>
+                          <span>{getValidEntreprises(recherche.entreprises).length} entreprise{getValidEntreprises(recherche.entreprises).length > 1 ? 's' : ''}</span>
                         </div>
                       </div>
                       <svg
@@ -336,8 +341,8 @@ export default function MesEntreprises() {
                       <div className="border-t border-[#E1E5EB] p-4 bg-[#F5F7FA]">
                         <div className="space-y-2 mb-4">
                           {(recherche.showAllEntreprises
-                            ? recherche.entreprises
-                            : recherche.entreprises.slice(0, 5)
+                            ? recherche.entreprises.filter(ent => ent.siren && ent.siren.trim() !== '')
+                            : recherche.entreprises.filter(ent => ent.siren && ent.siren.trim() !== '').slice(0, 5)
                           ).map((entreprise, index) => (
                             <div
                               key={index}
@@ -361,17 +366,20 @@ export default function MesEntreprises() {
                         </div>
                         
                         {/* Bouton pour afficher plus d'entreprises */}
-                        {recherche.entreprises.length > 5 && (
-                          <button
-                            type="button"
-                            onClick={() => toggleShowAllEntreprises(recherche.id, false)}
-                            className="w-full px-4 py-2 border border-[#E1E5EB] bg-white text-[#1A1C20] text-sm font-medium hover:bg-[#F5F7FA] transition-colors mb-4"
-                          >
-                            {recherche.showAllEntreprises
-                              ? 'Afficher moins'
-                              : `Afficher les ${recherche.entreprises.length - 5} autres entreprises`}
-                          </button>
-                        )}
+                        {(() => {
+                          const entreprisesFiltered = recherche.entreprises.filter(ent => ent.siren && ent.siren.trim() !== '')
+                          return entreprisesFiltered.length > 5 && (
+                            <button
+                              type="button"
+                              onClick={() => toggleShowAllEntreprises(recherche.id, false)}
+                              className="w-full px-4 py-2 border border-[#E1E5EB] bg-white text-[#1A1C20] text-sm font-medium hover:bg-[#F5F7FA] transition-colors mb-4"
+                            >
+                              {recherche.showAllEntreprises
+                                ? 'Afficher moins'
+                                : `Afficher les ${entreprisesFiltered.length - 5} autres entreprises`}
+                            </button>
+                          )
+                        })()}
 
                         {/* Boutons d'action */}
                         <div className="flex items-center gap-3 pt-4 border-t border-[#E1E5EB]">
@@ -450,7 +458,7 @@ export default function MesEntreprises() {
                         <h3 className="text-base font-bold text-[#1A1C20] mb-1">{recherche.nom}</h3>
                         <div className="flex items-center gap-4 text-xs text-[#4B4F5C]">
                           <span>Effectuée le {new Date(recherche.dateCreation).toLocaleDateString('fr-FR')}</span>
-                          <span>{recherche.entreprises.length} entreprise{recherche.entreprises.length > 1 ? 's' : ''}</span>
+                          <span>{getValidEntreprises(recherche.entreprises).length} entreprise{getValidEntreprises(recherche.entreprises).length > 1 ? 's' : ''}</span>
                         </div>
                       </div>
                       <svg
@@ -467,8 +475,8 @@ export default function MesEntreprises() {
                       <div className="border-t border-[#E1E5EB] p-4 bg-[#F5F7FA]">
                         <div className="space-y-2 mb-4">
                           {(recherche.showAllEntreprises
-                            ? recherche.entreprises
-                            : recherche.entreprises.slice(0, 5)
+                            ? recherche.entreprises.filter(ent => ent.siren && ent.siren.trim() !== '')
+                            : recherche.entreprises.filter(ent => ent.siren && ent.siren.trim() !== '').slice(0, 5)
                           ).map((entreprise, index) => (
                             <div
                               key={index}
@@ -492,17 +500,20 @@ export default function MesEntreprises() {
                         </div>
                         
                         {/* Bouton pour afficher plus d'entreprises */}
-                        {recherche.entreprises.length > 5 && (
-                          <button
-                            type="button"
-                            onClick={() => toggleShowAllEntreprises(recherche.id, true)}
-                            className="w-full px-4 py-2 border border-[#E1E5EB] bg-white text-[#1A1C20] text-sm font-medium hover:bg-[#F5F7FA] transition-colors mb-4"
-                          >
-                            {recherche.showAllEntreprises
-                              ? 'Afficher moins'
-                              : `Afficher les ${recherche.entreprises.length - 5} autres entreprises`}
-                          </button>
-                        )}
+                        {(() => {
+                          const entreprisesFiltered = getValidEntreprises(recherche.entreprises)
+                          return entreprisesFiltered.length > 5 && (
+                            <button
+                              type="button"
+                              onClick={() => toggleShowAllEntreprises(recherche.id, true)}
+                              className="w-full px-4 py-2 border border-[#E1E5EB] bg-white text-[#1A1C20] text-sm font-medium hover:bg-[#F5F7FA] transition-colors mb-4"
+                            >
+                              {recherche.showAllEntreprises
+                                ? 'Afficher moins'
+                                : `Afficher les ${entreprisesFiltered.length - 5} autres entreprises`}
+                            </button>
+                          )
+                        })()}
 
                         {/* Boutons d'action */}
                         <div className="flex items-center gap-3 pt-4 border-t border-[#E1E5EB]">
@@ -515,35 +526,6 @@ export default function MesEntreprises() {
                             className="flex-1 px-4 py-2 bg-[#0d1b2a] text-white text-sm font-medium hover:bg-[#1a2d42] transition-colors"
                           >
                             Continuer la Recherche
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              console.log('Qualifier la recherche:', recherche.id)
-                              // TODO: Implémenter la fonctionnalité
-                            }}
-                            className="flex-1 px-4 py-2 border border-[#E1E5EB] bg-white text-[#1A1C20] text-sm font-medium hover:bg-[#F5F7FA] transition-colors relative group"
-                          >
-                            <div className="flex items-center justify-center gap-2">
-                              <span>Qualifier la Recherche en listing</span>
-                              <div className="relative group/info">
-                                <svg
-                                  className="w-4 h-4 text-[#4B4F5C] cursor-help"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                {/* Tooltip */}
-                                <div className="absolute left-1/2 bottom-full mb-2 -translate-x-1/2 px-3 py-2 bg-[#1A1C20] text-white text-xs whitespace-normal max-w-[250px] opacity-0 group-hover/info:opacity-100 pointer-events-none transition-opacity z-50 rounded">
-                                  Transformer la Recherche en Listing afin de créer un Listing avec une ligne par actionnaire et non une ligne par société
-                                </div>
-                              </div>
-                            </div>
                           </button>
                           <button
                             type="button"

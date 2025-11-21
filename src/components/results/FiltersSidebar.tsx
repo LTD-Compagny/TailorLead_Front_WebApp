@@ -28,7 +28,7 @@ const navGroups: NavGroup[] = [
     title: 'Mes Sauvegardes',
     items: [
       { label: 'Mes Entreprises', path: '/sauvegardes/recherches' },
-      { label: 'Mes Listings (Personne Physique)', path: '/sauvegardes/listings' },
+      { label: 'Mes Listings', path: '/sauvegardes/listings' },
     ],
   },
   {

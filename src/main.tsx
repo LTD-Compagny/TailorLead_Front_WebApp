@@ -9,6 +9,8 @@ import Actualites from './pages/Actualites.tsx'
 import Surveillance from './pages/Surveillance.tsx'
 import MesEntreprises from './pages/MesEntreprises.tsx'
 import MesListings from './pages/MesListings.tsx'
+import MesReglages from './pages/MesReglages.tsx'
+import MonAbonnement from './pages/MonAbonnement.tsx'
 // import Test from './pages/Test.tsx'
 // import TestIAIcon from './pages/TestIAIcon.tsx'
 import TestMiniIA from './pages/TestMiniIA.tsx'
@@ -29,6 +31,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Route path="/surveillance/actualite" element={<Actualites />} />
         <Route path="/sauvegardes/recherches" element={<MesEntreprises />} />
         <Route path="/sauvegardes/listings" element={<MesListings />} />
+        <Route path="/compte/reglages" element={<MesReglages />} />
+        <Route path="/compte/abonnement" element={<MonAbonnement />} />
         {/* <Route path="/test" element={<Test />} /> */}
         {/* <Route path="/test-ia" element={<TestIAIcon />} /> */}
         <Route path="/test-mini-ia" element={<TestMiniIA />} />

@@ -33,7 +33,9 @@ interface ColumnConfig {
   key: keyof PersonnePhysique | string
   visible: boolean
   order: number
-  filter: string
+  filter: string[]
+  filterSearch: string
+  filterOpen: boolean
 }
 
 export default function MesListings() {
@@ -41,38 +43,71 @@ export default function MesListings() {
   const [activeTab, setActiveTab] = useState<'enregistres' | 'historique' | 'gestion'>('enregistres')
   const [selectedListingGestion, setSelectedListingGestion] = useState<string>('')
   const [promptIA, setPromptIA] = useState('')
-  const [showMoreColumns, setShowMoreColumns] = useState(false)
+  const [showColumnManager, setShowColumnManager] = useState(false)
+  const [columnManagerTab, setColumnManagerTab] = useState<'afficher' | 'cacher'>('afficher')
   const [draggedColumn, setDraggedColumn] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   
   // Configuration des colonnes avec filtres
   const [columns, setColumns] = useState<ColumnConfig[]>([
-    { id: 'civilite', label: 'Civilité', key: 'civilite', visible: true, order: 0, filter: '' },
-    { id: 'nom', label: 'Nom', key: 'nom', visible: true, order: 1, filter: '' },
-    { id: 'prenom', label: 'Prénom', key: 'prenom', visible: true, order: 2, filter: '' },
-    { id: 'entreprise', label: 'Entreprise', key: 'entreprise', visible: true, order: 3, filter: '' },
-    { id: 'role', label: 'Rôle', key: 'role', visible: true, order: 4, filter: '' },
-    { id: 'siren', label: 'SIREN', key: 'siren', visible: false, order: 5, filter: '' },
-    { id: 'ville', label: 'Ville', key: 'ville', visible: false, order: 6, filter: '' },
-    { id: 'participation', label: 'Participation (%)', key: 'participation', visible: false, order: 7, filter: '' },
-    { id: 'dateNaissance', label: 'Date de naissance', key: 'dateNaissance', visible: false, order: 8, filter: '' },
-    { id: 'email', label: 'Email', key: 'email', visible: false, order: 9, filter: '' },
-    { id: 'telephone', label: 'Téléphone', key: 'telephone', visible: false, order: 10, filter: '' },
+    { id: 'civilite', label: 'Civilité', key: 'civilite', visible: true, order: 0, filter: [], filterSearch: '', filterOpen: false },
+    { id: 'nom', label: 'Nom', key: 'nom', visible: true, order: 1, filter: [], filterSearch: '', filterOpen: false },
+    { id: 'prenom', label: 'Prénom', key: 'prenom', visible: true, order: 2, filter: [], filterSearch: '', filterOpen: false },
+    { id: 'entreprise', label: 'Entreprise', key: 'entreprise', visible: true, order: 3, filter: [], filterSearch: '', filterOpen: false },
+    { id: 'role', label: 'Rôle', key: 'role', visible: true, order: 4, filter: [], filterSearch: '', filterOpen: false },
+    { id: 'siren', label: 'SIREN', key: 'siren', visible: false, order: 5, filter: [], filterSearch: '', filterOpen: false },
+    { id: 'ville', label: 'Ville', key: 'ville', visible: false, order: 6, filter: [], filterSearch: '', filterOpen: false },
+    { id: 'participation', label: 'Participation (%)', key: 'participation', visible: false, order: 7, filter: [], filterSearch: '', filterOpen: false },
+    { id: 'dateNaissance', label: 'Date de naissance', key: 'dateNaissance', visible: false, order: 8, filter: [], filterSearch: '', filterOpen: false },
+    { id: 'email', label: 'Email', key: 'email', visible: false, order: 9, filter: [], filterSearch: '', filterOpen: false },
+    { id: 'telephone', label: 'Téléphone', key: 'telephone', visible: false, order: 10, filter: [], filterSearch: '', filterOpen: false },
   ])
   
-  // Colonnes disponibles pour ajout
-  const availableColumns = columns.filter(col => !col.visible)
+  // Colonnes disponibles pour ajout (masquées)
+  const hiddenColumns = columns.filter(col => !col.visible)
+  // Colonnes affichées
+  const visibleColumnsForManager = columns.filter(col => col.visible)
   
   // Fonctions pour gérer les colonnes
   const toggleColumnVisibility = (columnId: string) => {
     setColumns(prev => prev.map(col => 
-      col.id === columnId ? { ...col, visible: !col.visible, filter: col.visible ? col.filter : '' } : col
+      col.id === columnId ? { ...col, visible: !col.visible, filter: [], filterSearch: '', filterOpen: false } : col
     ))
   }
   
-  const updateColumnFilter = (columnId: string, filterValue: string) => {
+  const toggleFilterOpen = (columnId: string) => {
     setColumns(prev => prev.map(col => 
-      col.id === columnId ? { ...col, filter: filterValue } : col
+      col.id === columnId ? { ...col, filterOpen: !col.filterOpen } : { ...col, filterOpen: false }
+    ))
+  }
+  
+  const updateFilterSearch = (columnId: string, searchValue: string) => {
+    setColumns(prev => prev.map(col => 
+      col.id === columnId ? { ...col, filterSearch: searchValue } : col
+    ))
+  }
+  
+  const toggleFilterValue = (columnId: string, value: string) => {
+    setColumns(prev => prev.map(col => {
+      if (col.id === columnId) {
+        const newFilter = col.filter.includes(value)
+          ? col.filter.filter(v => v !== value)
+          : [...col.filter, value]
+        return { ...col, filter: newFilter }
+      }
+      return col
+    }))
+  }
+  
+  const selectAllFilterValues = (columnId: string, allValues: string[]) => {
+    setColumns(prev => prev.map(col => 
+      col.id === columnId ? { ...col, filter: allValues } : col
+    ))
+  }
+  
+  const clearFilter = (columnId: string) => {
+    setColumns(prev => prev.map(col => 
+      col.id === columnId ? { ...col, filter: [], filterSearch: '' } : col
     ))
   }
   
@@ -547,33 +582,146 @@ export default function MesListings() {
                                 onDragStart={() => handleDragStart(column.id)}
                                 onDragOver={handleDragOver}
                                 onDrop={() => handleDrop(column.id)}
-                                className={`px-4 py-2 border-r border-[#E1E5EB] cursor-move ${
+                                className={`px-4 py-2 border-r border-[#E1E5EB] cursor-move relative ${
                                   draggedColumn === column.id ? 'opacity-50' : ''
                                 }`}
                               >
-                                <input
-                                  type="text"
-                                  value={column.filter}
-                                  onChange={(e) => updateColumnFilter(column.id, e.target.value)}
-                                  placeholder={`Filtrer ${column.label}...`}
-                                  className="w-full px-2 py-1 border border-[#E1E5EB] text-[#1A1C20] text-xs focus:outline-none focus:border-[#0d1b2a] bg-white"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
+                                {(() => {
+                                  const selectedListing = listingsEnregistres.find(r => r.id === selectedListingGestion)
+                                  if (!selectedListing) return null
+                                  
+                                  // Extraire les valeurs uniques de la colonne
+                                  const uniqueValues = Array.from(new Set(
+                                    selectedListing.personnes
+                                      .map(p => {
+                                        const value = (p as any)[column.key]
+                                        return value ? value.toString().trim() : ''
+                                      })
+                                      .filter(v => v !== '')
+                                  )).sort()
+                                  
+                                  // Filtrer selon la recherche
+                                  const filteredValues = uniqueValues.filter(val =>
+                                    val.toLowerCase().includes(column.filterSearch.toLowerCase())
+                                  )
+                                  
+                                  return (
+                                    <div className="relative">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          toggleFilterOpen(column.id)
+                                        }}
+                                        className="w-full px-2 py-1 border border-[#E1E5EB] text-[#1A1C20] text-xs bg-white hover:bg-[#F5F7FA] transition-colors text-left flex items-center justify-between gap-2"
+                                      >
+                                        <span className="truncate">
+                                          {column.filter.length === 0 
+                                            ? `Filtrer ${column.label}...` 
+                                            : column.filter.length === uniqueValues.length
+                                            ? 'Tout sélectionné'
+                                            : `${column.filter.length} sélectionné${column.filter.length > 1 ? 's' : ''}`
+                                          }
+                                        </span>
+                                        <svg
+                                          className={`w-3 h-3 text-[#4B4F5C] transition-transform ${column.filterOpen ? 'rotate-180' : ''}`}
+                                          fill="none"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                      </button>
+                                      
+                                      {column.filterOpen && (
+                                        <>
+                                          <div 
+                                            className="fixed inset-0 z-10" 
+                                            onClick={() => toggleFilterOpen(column.id)}
+                                          />
+                                          <div className="absolute top-full left-0 mt-1 bg-white border border-[#E1E5EB] shadow-lg z-20 min-w-[200px] max-w-[300px] max-h-[300px] flex flex-col">
+                                            {/* Barre de recherche */}
+                                            <div className="p-2 border-b border-[#E1E5EB]">
+                                              <input
+                                                type="text"
+                                                value={column.filterSearch}
+                                                onChange={(e) => updateFilterSearch(column.id, e.target.value)}
+                                                placeholder="Rechercher..."
+                                                className="w-full px-2 py-1 border border-[#E1E5EB] text-[#1A1C20] text-xs focus:outline-none focus:border-[#0d1b2a] bg-white"
+                                                onClick={(e) => e.stopPropagation()}
+                                                onKeyDown={(e) => e.stopPropagation()}
+                                              />
+                                            </div>
+                                            
+                                            {/* Boutons Tout sélectionner / Tout désélectionner */}
+                                            <div className="p-2 border-b border-[#E1E5EB] flex gap-2">
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation()
+                                                  selectAllFilterValues(column.id, filteredValues)
+                                                }}
+                                                className="flex-1 px-2 py-1 text-xs text-[#3A6FF7] hover:bg-[#F5F7FA] transition-colors"
+                                              >
+                                                Tout
+                                              </button>
+                                              <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                  e.stopPropagation()
+                                                  clearFilter(column.id)
+                                                }}
+                                                className="flex-1 px-2 py-1 text-xs text-[#4B4F5C] hover:bg-[#F5F7FA] transition-colors"
+                                              >
+                                                Effacer
+                                              </button>
+                                            </div>
+                                            
+                                            {/* Liste des valeurs avec checkboxes */}
+                                            <div className="overflow-y-auto max-h-[200px]">
+                                              {filteredValues.length > 0 ? (
+                                                filteredValues.map((value) => (
+                                                  <label
+                                                    key={value}
+                                                    className="flex items-center gap-2 px-3 py-2 hover:bg-[#F5F7FA] cursor-pointer border-b border-[#E1E5EB] last:border-b-0"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                  >
+                                                    <input
+                                                      type="checkbox"
+                                                      checked={column.filter.includes(value)}
+                                                      onChange={() => toggleFilterValue(column.id, value)}
+                                                      className="w-4 h-4 border border-[#E1E5EB] text-[#0d1b2a] focus:ring-2 focus:ring-[#0d1b2a] focus:ring-offset-0 cursor-pointer"
+                                                      onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                    <span className="text-xs text-[#1A1C20] truncate">{value}</span>
+                                                  </label>
+                                                ))
+                                              ) : (
+                                                <div className="px-3 py-2 text-xs text-[#4B4F5C] text-center">
+                                                  Aucun résultat
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </>
+                                      )}
+                                    </div>
+                                  )
+                                })()}
                               </th>
                             ))}
                             <th className="px-4 py-2 text-center border-l border-[#E1E5EB]">
-                              {availableColumns.length > 0 && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setShowMoreColumns(true)
-                                  }}
-                                  className="px-2 py-1 text-xs text-[#3A6FF7] hover:text-[#0d1b2a] hover:bg-[#F5F7FA] transition-colors"
-                                >
-                                  + Colonnes
-                                </button>
-                              )}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setShowColumnManager(true)
+                                  setColumnManagerTab('afficher')
+                                }}
+                                className="px-2 py-1 text-xs text-[#3A6FF7] hover:text-[#0d1b2a] hover:bg-[#F5F7FA] transition-colors"
+                              >
+                                Gestion Colonnes
+                              </button>
                             </th>
                           </tr>
                           {/* Ligne des en-têtes */}
@@ -618,11 +766,12 @@ export default function MesListings() {
                             // Filtrer les personnes selon les filtres des colonnes
                             let filteredPersonnes = selectedListing.personnes.filter((personne) => {
                               return visibleColumns.every(column => {
-                                const filterValue = column.filter.toLowerCase()
-                                if (!filterValue) return true
+                                // Si aucun filtre n'est sélectionné, afficher toutes les lignes
+                                if (column.filter.length === 0) return true
                                 
-                                const value = (personne as any)[column.key]?.toLowerCase() || ''
-                                return value.includes(filterValue)
+                                const value = (personne as any)[column.key]?.toString().trim() || ''
+                                // Vérifier si la valeur est dans les filtres sélectionnés
+                                return column.filter.includes(value)
                               })
                             })
 
@@ -738,36 +887,99 @@ export default function MesListings() {
                         </div>
                       </div>
                       
-                      {/* Menu pour afficher plus de colonnes */}
-                      {showMoreColumns && (
+                      {/* Popup de gestion des colonnes */}
+                      {showColumnManager && (
                         <>
                           <div 
-                            className="fixed inset-0 z-10" 
-                            onClick={() => setShowMoreColumns(false)}
+                            className="fixed inset-0 z-50 bg-black/20" 
+                            onClick={() => setShowColumnManager(false)}
                           />
-                          <div className="absolute right-4 top-4 bg-white border border-[#E1E5EB] shadow-lg z-20 p-4 min-w-[200px]">
-                            <div className="flex items-center justify-between mb-3">
-                              <h4 className="text-sm font-bold text-[#1A1C20]">Colonnes disponibles</h4>
+                          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border border-[#E1E5EB] shadow-lg z-50 w-full max-w-[500px] max-h-[600px] flex flex-col">
+                            {/* Header du popup */}
+                            <div className="flex items-center justify-between p-4 border-b border-[#E1E5EB]">
+                              <h4 className="text-base font-bold text-[#1A1C20]">Gestion des colonnes</h4>
                               <button
                                 type="button"
-                                onClick={() => setShowMoreColumns(false)}
-                                className="text-xs text-[#4B4F5C] hover:text-[#1A1C20]"
+                                onClick={() => setShowColumnManager(false)}
+                                className="text-lg text-[#4B4F5C] hover:text-[#1A1C20] transition-colors"
                               >
                                 ✕
                               </button>
                             </div>
-                            <div className="space-y-2">
-                              {availableColumns.map((column) => (
-                                <label key={column.id} className="flex items-center gap-2 cursor-pointer">
-                                  <input
-                                    type="checkbox"
-                                    checked={column.visible}
-                                    onChange={() => toggleColumnVisibility(column.id)}
-                                    className="w-4 h-4 border border-[#E1E5EB] text-[#0d1b2a] focus:ring-2 focus:ring-[#0d1b2a] focus:ring-offset-0 cursor-pointer"
-                                  />
-                                  <span className="text-xs text-[#1A1C20]">{column.label}</span>
-                                </label>
-                              ))}
+                            
+                            {/* Onglets */}
+                            <div className="flex items-center border-b border-[#E1E5EB]">
+                              <button
+                                type="button"
+                                onClick={() => setColumnManagerTab('afficher')}
+                                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                                  columnManagerTab === 'afficher'
+                                    ? 'bg-[#0d1b2a] text-white border-b-2 border-[#0d1b2a]'
+                                    : 'text-[#4B4F5C] hover:bg-[#F5F7FA]'
+                                }`}
+                              >
+                                Afficher
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setColumnManagerTab('cacher')}
+                                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                                  columnManagerTab === 'cacher'
+                                    ? 'bg-[#0d1b2a] text-white border-b-2 border-[#0d1b2a]'
+                                    : 'text-[#4B4F5C] hover:bg-[#F5F7FA]'
+                                }`}
+                              >
+                                Cacher
+                              </button>
+                            </div>
+                            
+                            {/* Contenu des onglets */}
+                            <div className="flex-1 overflow-y-auto p-4">
+                              {columnManagerTab === 'afficher' && (
+                                <div className="space-y-2">
+                                  {hiddenColumns.length > 0 ? (
+                                    hiddenColumns.map((column) => (
+                                      <button
+                                        key={column.id}
+                                        type="button"
+                                        onClick={() => {
+                                          toggleColumnVisibility(column.id)
+                                        }}
+                                        className="w-full px-3 py-2 text-left text-sm text-[#1A1C20] hover:bg-[#F5F7FA] transition-colors border border-[#E1E5EB]"
+                                      >
+                                        {column.label}
+                                      </button>
+                                    ))
+                                  ) : (
+                                    <p className="text-sm text-[#4B4F5C] text-center py-4">
+                                      Toutes les colonnes sont affichées
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                              
+                              {columnManagerTab === 'cacher' && (
+                                <div className="space-y-2">
+                                  {visibleColumnsForManager.length > 0 ? (
+                                    visibleColumnsForManager.map((column) => (
+                                      <button
+                                        key={column.id}
+                                        type="button"
+                                        onClick={() => {
+                                          toggleColumnVisibility(column.id)
+                                        }}
+                                        className="w-full px-3 py-2 text-left text-sm text-[#1A1C20] hover:bg-[#F5F7FA] transition-colors border border-[#E1E5EB]"
+                                      >
+                                        {column.label}
+                                      </button>
+                                    ))
+                                  ) : (
+                                    <p className="text-sm text-[#4B4F5C] text-center py-4">
+                                      Aucune colonne affichée
+                                    </p>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </>
